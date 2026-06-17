@@ -1,29 +1,48 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Navbar } from "@/components/landing/Navbar";
+import { Hero } from "@/components/landing/Hero";
+import { FeatureStrip } from "@/components/landing/FeatureStrip";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Benefits } from "@/components/landing/Benefits";
+import { Bilingual } from "@/components/landing/Bilingual";
+import { UseCases } from "@/components/landing/UseCases";
+import { FinalCta } from "@/components/landing/FinalCta";
+import { Footer } from "@/components/landing/Footer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "KABSA CALL.ai — AI Voice Scheduling, 24/7" },
+      {
+        name: "description",
+        content:
+          "KABSA CALL.ai is an AI voice agent that answers calls and books, reschedules, or cancels appointments 24/7 in English and Arabic.",
+      },
+      { property: "og:title", content: "KABSA CALL.ai — AI Voice Scheduling, 24/7" },
+      {
+        property: "og:description",
+        content:
+          "Never miss a customer call. AI voice agent for appointment scheduling — English & Arabic, under 500ms latency.",
+      },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-fir text-foreground antialiased">
+      <Navbar />
+      <main>
+        <Hero />
+        <FeatureStrip />
+        <HowItWorks />
+        <Benefits />
+        <Bilingual />
+        <UseCases />
+        <FinalCta />
+      </main>
+      <Footer />
     </div>
   );
 }
