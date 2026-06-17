@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Logo } from "./Logo";
-
-const links = [
-  { href: "#home", label: "Home" },
-  { href: "#features", label: "Features" },
-  { href: "#how", label: "How It Works" },
-  { href: "#benefits", label: "Benefits" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#contact", label: "Contact" },
-];
+import { useLocale } from "@/lib/i18n";
 
 export function Navbar() {
+  const { t, locale, setLocale } = useLocale();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [lang, setLang] = useState<"EN" | "AR">("EN");
+
+  const links = [
+    { href: "#home", label: t("nav.home") },
+    { href: "#features", label: t("nav.features") },
+    { href: "#how", label: t("nav.how") },
+    { href: "#benefits", label: t("nav.benefits") },
+    { href: "#pricing", label: t("nav.pricing") },
+    { href: "#contact", label: t("nav.contact") },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -47,17 +48,17 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <div className="hidden md:flex items-center rounded-full border border-lime-soft p-1 text-xs">
             <button
-              onClick={() => setLang("EN")}
+              onClick={() => setLocale("en")}
               className={`px-2.5 py-1 rounded-full transition-colors ${
-                lang === "EN" ? "bg-lime text-fir" : "text-muted-foreground"
+                locale === "en" ? "bg-lime text-fir" : "text-muted-foreground"
               }`}
             >
               EN
             </button>
             <button
-              onClick={() => setLang("AR")}
+              onClick={() => setLocale("ar")}
               className={`px-2.5 py-1 rounded-full transition-colors font-arabic ${
-                lang === "AR" ? "bg-lime text-fir" : "text-muted-foreground"
+                locale === "ar" ? "bg-lime text-fir" : "text-muted-foreground"
               }`}
             >
               العربية
@@ -68,7 +69,7 @@ export function Navbar() {
             href="#contact"
             className="hidden sm:inline-flex items-center rounded-full bg-lime px-4 py-2 text-sm font-medium text-fir hover:shadow-lime transition-shadow"
           >
-            Book a Demo
+            {t("nav.cta")}
           </a>
 
           <button

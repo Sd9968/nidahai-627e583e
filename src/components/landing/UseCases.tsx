@@ -1,28 +1,32 @@
 import { Stethoscope, Scissors, Smile, Briefcase, Wrench, Store, ArrowUpRight } from "lucide-react";
-
-const cases = [
-  { icon: Stethoscope, title: "Clinics", desc: "Book patient visits, send reminders, and free your front desk for in-person care." },
-  { icon: Scissors, title: "Salons", desc: "Let clients book or change appointments any time without interrupting service." },
-  { icon: Smile, title: "Dental Offices", desc: "Handle check-ups, cleanings, and rescheduling without phone-tag." },
-  { icon: Briefcase, title: "Consulting", desc: "Qualify callers and put discovery calls straight on your calendar." },
-  { icon: Wrench, title: "Home Services", desc: "Take service requests and dispatch slots while your team is on the job." },
-  { icon: Store, title: "Small Businesses", desc: "A 24/7 receptionist that scales with your bookings, not your headcount." },
-];
+import { useLocale } from "@/lib/i18n";
 
 export function UseCases() {
+  const { t } = useLocale();
+  const cases = [
+    { icon: Stethoscope, title: t("uc.1.t"), desc: t("uc.1.d") },
+    { icon: Scissors, title: t("uc.2.t"), desc: t("uc.2.d") },
+    { icon: Smile, title: t("uc.3.t"), desc: t("uc.3.d") },
+    { icon: Briefcase, title: t("uc.4.t"), desc: t("uc.4.d") },
+    { icon: Wrench, title: t("uc.5.t"), desc: t("uc.5.d") },
+    { icon: Store, title: t("uc.6.t"), desc: t("uc.6.d") },
+  ];
+
   return (
     <section className="bg-fir py-28 md:py-36 px-6">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Use cases</span>
+            <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-mono">
+              {t("uc.eyebrow")}
+            </span>
             <h2 className="mt-3 font-display text-4xl md:text-5xl leading-tight text-foreground">
-              Made for any business <em className="not-italic text-lime">that books by phone.</em>
+              {t("uc.title.a")} <em className="not-italic text-lime">{t("uc.title.b")}</em>
             </h2>
           </div>
           <a href="#contact" className="inline-flex items-center gap-1.5 text-sm text-lime hover:underline">
-            Don't see yours? Talk to us
-            <ArrowUpRight size={14} />
+            {t("uc.cta")}
+            <ArrowUpRight size={14} className="rtl:-scale-x-100" />
           </a>
         </div>
 
