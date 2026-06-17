@@ -1,13 +1,15 @@
 import { Clock, Zap, CalendarCheck, Bell } from "lucide-react";
-
-const items = [
-  { icon: Clock, title: "24/7 Availability", desc: "Always on, never misses a call." },
-  { icon: Zap, title: "Under 500ms Latency", desc: "Conversations that feel human." },
-  { icon: CalendarCheck, title: "Smart Scheduling", desc: "Book, modify, reschedule, cancel." },
-  { icon: Bell, title: "Instant Notifications", desc: "Confirm by phone after every call." },
-];
+import { useLocale } from "@/lib/i18n";
 
 export function FeatureStrip() {
+  const { t } = useLocale();
+  const items = [
+    { icon: Clock, title: t("fs.1.t"), desc: t("fs.1.d") },
+    { icon: Zap, title: t("fs.2.t"), desc: t("fs.2.d") },
+    { icon: CalendarCheck, title: t("fs.3.t"), desc: t("fs.3.d") },
+    { icon: Bell, title: t("fs.4.t"), desc: t("fs.4.d") },
+  ];
+
   return (
     <section id="features" className="relative -mt-12 px-6">
       <div className="mx-auto max-w-7xl">
