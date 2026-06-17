@@ -8,6 +8,7 @@ import { Bilingual } from "@/components/landing/Bilingual";
 import { UseCases } from "@/components/landing/UseCases";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
+import { ScrollReveal } from "@/components/landing/ScrollReveal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -33,14 +34,14 @@ function Index() {
   return (
     <div className="min-h-screen bg-fir text-foreground antialiased">
       <Navbar />
-      <main>
+      <main className="overflow-x-clip">
         <Hero />
-        <FeatureStrip />
-        <HowItWorks />
-        <Benefits />
-        <Bilingual />
-        <UseCases />
-        <FinalCta />
+        <ScrollReveal intensity="soft"><FeatureStrip /></ScrollReveal>
+        <ScrollReveal intensity="medium"><HowItWorks /></ScrollReveal>
+        <ScrollReveal intensity="medium"><Benefits /></ScrollReveal>
+        <ScrollReveal intensity="strong"><Bilingual /></ScrollReveal>
+        <ScrollReveal intensity="medium"><UseCases /></ScrollReveal>
+        <ScrollReveal intensity="strong"><FinalCta /></ScrollReveal>
       </main>
       <Footer />
     </div>
