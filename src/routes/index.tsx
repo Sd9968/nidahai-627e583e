@@ -9,7 +9,6 @@ import { UseCases } from "@/components/landing/UseCases";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
-import { ScrollSequence } from "@/components/landing/ScrollSequence";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -37,7 +36,6 @@ function Index() {
       <Navbar />
       <main className="overflow-x-clip">
         <Hero />
-        <ScrollSequence />
         <ScrollReveal intensity="soft"><FeatureStrip /></ScrollReveal>
         <ScrollReveal intensity="medium"><HowItWorks /></ScrollReveal>
         <ScrollReveal intensity="medium"><Benefits /></ScrollReveal>
