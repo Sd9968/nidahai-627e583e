@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-const TO_EMAIL = "aszadms1@gmail.com";
+// Resend test mode requires sending to the account owner's email.
+// Once you verify a domain at resend.com/domains, swap this to aszadms1@gmail.com
+// and update FROM_EMAIL to use your verified domain (e.g. "hello@yourdomain.com").
+const TO_EMAIL = "sdaszad127@gmail.com";
 const FROM_EMAIL = "KABSA CALL.ai <onboarding@resend.dev>";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
