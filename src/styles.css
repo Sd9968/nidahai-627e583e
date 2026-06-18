@@ -175,7 +175,7 @@
 @utility text-paper { color: var(--paper); }
 @utility text-ink { color: var(--ink); }
 @utility text-pop { color: var(--pop); }
-@utility border-hairline { border-color: rgba(10,10,10,0.10); }
+@utility border-hairline { border-color: var(--border); }
 @utility border-hairline-light { border-color: rgba(255,255,255,0.14); }
 
 /* Legacy mappings so any leftover utility keeps rendering coherently */
@@ -188,7 +188,7 @@
 @utility text-cream-foreground { color: var(--paper); }
 @utility text-lime { color: var(--pop); }
 @utility text-fir { color: var(--paper); }
-@utility border-lime-soft { border-color: rgba(10,10,10,0.10); }
+@utility border-lime-soft { border-color: var(--border); }
 @utility shadow-lime { box-shadow: var(--shadow-pop); }
 
 @utility waveform-bar {
