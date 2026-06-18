@@ -27,18 +27,18 @@ export function Navbar() {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "backdrop-blur-xl bg-fir-deep/75 border-b border-lime-soft" : "bg-transparent"
+        scrolled ? "bg-paper/90 backdrop-blur-md border-b border-hairline" : "bg-transparent"
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 md:py-5">
-        <Logo className="text-foreground" />
+        <Logo className="text-ink" />
 
         <nav className="hidden lg:flex items-center gap-8">
           {links.map((l) => (
             <a
               key={l.href}
               href={l.href}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-ink/70 hover:text-ink transition-colors"
             >
               {l.label}
             </a>
@@ -46,11 +46,11 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center rounded-full border border-lime-soft p-1 text-xs">
+          <div className="hidden md:flex items-center rounded-full border border-hairline p-1 text-xs">
             <button
               onClick={() => setLocale("en")}
               className={`px-2.5 py-1 rounded-full transition-colors ${
-                locale === "en" ? "bg-lime text-fir" : "text-muted-foreground"
+                locale === "en" ? "bg-ink text-paper" : "text-ink/60"
               }`}
             >
               EN
@@ -58,7 +58,7 @@ export function Navbar() {
             <button
               onClick={() => setLocale("ar")}
               className={`px-2.5 py-1 rounded-full transition-colors font-arabic ${
-                locale === "ar" ? "bg-lime text-fir" : "text-muted-foreground"
+                locale === "ar" ? "bg-ink text-paper" : "text-ink/60"
               }`}
             >
               العربية
@@ -67,14 +67,14 @@ export function Navbar() {
 
           <a
             href="#contact"
-            className="hidden sm:inline-flex items-center rounded-full bg-lime px-4 py-2 text-sm font-medium text-fir hover:shadow-lime transition-shadow"
+            className="hidden sm:inline-flex items-center rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper hover:bg-pop transition-colors"
           >
             {t("nav.cta")}
           </a>
 
           <button
             onClick={() => setOpen(!open)}
-            className="lg:hidden p-2 text-foreground"
+            className="lg:hidden p-2 text-ink"
             aria-label="Toggle menu"
           >
             {open ? <X size={22} /> : <Menu size={22} />}
@@ -83,14 +83,14 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="lg:hidden border-t border-lime-soft bg-fir-deep/95 backdrop-blur-xl">
+        <div className="lg:hidden border-t border-hairline bg-paper">
           <nav className="flex flex-col p-6 gap-4">
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="text-base text-muted-foreground hover:text-foreground"
+                className="text-base text-ink/80 hover:text-ink"
               >
                 {l.label}
               </a>

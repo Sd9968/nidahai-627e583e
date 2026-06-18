@@ -12,20 +12,20 @@ export function Benefits() {
   ];
 
   return (
-    <section id="benefits" className="bg-fir py-28 md:py-36 px-6">
+    <section id="benefits" className="bg-sand py-28 md:py-36 px-6">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
         <div>
-          <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-mono">
+          <span className="text-[11px] uppercase tracking-[0.22em] text-ink/55 font-mono">
             {t("ben.eyebrow")}
           </span>
-          <h2 className="mt-3 font-display text-4xl md:text-5xl leading-tight text-foreground">
-            {t("ben.title.a")} <em className="not-italic text-lime">{t("ben.title.b")}</em>
+          <h2 className="mt-4 font-display uppercase text-ink text-[clamp(2.25rem,5vw,4.25rem)] leading-[0.95]">
+            {t("ben.title.a")} <span className="text-pop">{t("ben.title.b")}</span>
           </h2>
           <ul className="mt-10 space-y-4">
             {bullets.map((b) => (
-              <li key={b} className="flex items-start gap-3 text-foreground/90">
-                <span className="mt-0.5 grid place-items-center size-6 shrink-0 rounded-full bg-lime/15 text-lime">
-                  <Check size={14} strokeWidth={3} />
+              <li key={b} className="flex items-start gap-3 text-ink">
+                <span className="mt-0.5 grid place-items-center size-6 shrink-0 rounded-full bg-ink text-paper">
+                  <Check size={13} strokeWidth={3} />
                 </span>
                 <span className="text-base">{b}</span>
               </li>
@@ -37,10 +37,10 @@ export function Benefits() {
           {metrics.map((m) => (
             <div
               key={m.label}
-              className="rounded-3xl bg-fir-deep border border-lime-soft p-6 md:p-8 hover:border-lime/60 transition-colors"
+              className="rounded-2xl bg-paper border border-hairline p-7 md:p-8 hover:border-ink/40 transition-colors"
             >
-              <p className="font-display text-4xl md:text-5xl text-lime">{m.value}</p>
-              <p className="mt-3 text-sm text-muted-foreground leading-snug">{m.label}</p>
+              <p className="font-display uppercase text-5xl md:text-6xl text-ink leading-none">{m.value}</p>
+              <p className="mt-4 text-sm text-ink/60 leading-snug uppercase tracking-wide">{m.label}</p>
             </div>
           ))}
         </div>
