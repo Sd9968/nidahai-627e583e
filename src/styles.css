@@ -61,53 +61,71 @@
 :root {
   --radius: 1.25rem;
 
-  /* Brand */
-  --fir-deep: oklch(0.22 0.045 165);    /* #001E17-ish */
-  --fir: oklch(0.27 0.05 162);          /* #062F24 */
-  --lime: oklch(0.92 0.18 122);         /* #C8F25D */
-  --lime-soft: oklch(0.95 0.12 122);
-  --cream: oklch(0.97 0.012 95);        /* #F7F6EF */
-  --cream-foreground: oklch(0.24 0.04 165); /* #10241C */
+  /* Warm Editorial palette
+     cream     #FAF8F5  page bg
+     sand      #F0EBE3  alt section bg
+     espresso  #2D1B0E  dark sections, primary text
+     mocha     #4A3422  secondary text
+     clay      #C4654A  accent
+     clay-soft #E8B8A8  soft glow/border
+  */
+  --cream-raw:     oklch(0.978 0.006 80);
+  --sand-raw:      oklch(0.945 0.012 75);
+  --espresso-raw:  oklch(0.22 0.025 50);
+  --mocha-raw:     oklch(0.34 0.035 55);
+  --clay-raw:      oklch(0.62 0.13 38);
+  --clay-soft-raw: oklch(0.82 0.06 38);
 
-  /* Semantic — dark hero defaults */
-  --background: var(--fir-deep);
-  --foreground: oklch(1 0 0);
-  --card: var(--cream);
-  --card-foreground: var(--cream-foreground);
-  --popover: var(--cream);
-  --popover-foreground: var(--cream-foreground);
-  --primary: var(--lime);
-  --primary-foreground: oklch(0.20 0.045 165);
-  --secondary: var(--fir);
-  --secondary-foreground: oklch(1 0 0);
-  --muted: oklch(0.30 0.04 165);
-  --muted-foreground: oklch(0.78 0.025 155); /* #B8C9BF */
-  --accent: var(--lime);
-  --accent-foreground: oklch(0.20 0.045 165);
+  /* Legacy token names remapped so existing utilities keep working.
+     Light/dark rhythm inverts: pages that used bg-fir are now cream;
+     "cream cards" become dark espresso. */
+  --fir-deep:         var(--cream-raw);
+  --fir:              var(--sand-raw);
+  --lime:             var(--clay-raw);
+  --lime-soft:        var(--clay-soft-raw);
+  --cream:            var(--espresso-raw);
+  --cream-foreground: var(--cream-raw);
+
+  /* Semantic */
+  --background: var(--cream-raw);
+  --foreground: var(--espresso-raw);
+  --card: var(--espresso-raw);
+  --card-foreground: var(--cream-raw);
+  --popover: var(--espresso-raw);
+  --popover-foreground: var(--cream-raw);
+  --primary: var(--clay-raw);
+  --primary-foreground: var(--cream-raw);
+  --secondary: var(--sand-raw);
+  --secondary-foreground: var(--espresso-raw);
+  --muted: oklch(0.92 0.012 75);
+  --muted-foreground: var(--mocha-raw);
+  --accent: var(--clay-raw);
+  --accent-foreground: var(--cream-raw);
   --destructive: oklch(0.58 0.22 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.92 0.18 122 / 0.25);
-  --input: oklch(0.92 0.18 122 / 0.2);
-  --ring: var(--lime);
+  --border: oklch(0.22 0.025 50 / 0.12);
+  --input: oklch(0.22 0.025 50 / 0.12);
+  --ring: var(--clay-raw);
 
-  --chart-1: var(--lime);
-  --chart-2: var(--fir);
-  --chart-3: var(--cream);
-  --chart-4: oklch(0.6 0.1 160);
-  --chart-5: oklch(0.85 0.15 122);
+  --chart-1: var(--clay-raw);
+  --chart-2: var(--espresso-raw);
+  --chart-3: var(--sand-raw);
+  --chart-4: oklch(0.7 0.1 40);
+  --chart-5: var(--clay-soft-raw);
 
-  --sidebar: var(--fir);
-  --sidebar-foreground: oklch(1 0 0);
-  --sidebar-primary: var(--lime);
-  --sidebar-primary-foreground: oklch(0.20 0.045 165);
-  --sidebar-accent: var(--fir-deep);
-  --sidebar-accent-foreground: oklch(1 0 0);
-  --sidebar-border: oklch(0.92 0.18 122 / 0.2);
-  --sidebar-ring: var(--lime);
+  --sidebar: var(--espresso-raw);
+  --sidebar-foreground: var(--cream-raw);
+  --sidebar-primary: var(--clay-raw);
+  --sidebar-primary-foreground: var(--cream-raw);
+  --sidebar-accent: var(--mocha-raw);
+  --sidebar-accent-foreground: var(--cream-raw);
+  --sidebar-border: oklch(0.62 0.13 38 / 0.2);
+  --sidebar-ring: var(--clay-raw);
 
-  --shadow-soft: 0 30px 60px -30px oklch(0.15 0.04 165 / 0.35), 0 8px 20px -10px oklch(0.15 0.04 165 / 0.18);
-  --shadow-lime: 0 20px 50px -20px oklch(0.92 0.18 122 / 0.45);
-  --gradient-fir: radial-gradient(120% 80% at 50% 0%, oklch(0.30 0.05 162) 0%, var(--fir-deep) 60%);
+  --shadow-soft: 0 30px 60px -30px oklch(0.22 0.025 50 / 0.22), 0 8px 20px -10px oklch(0.22 0.025 50 / 0.12);
+  --shadow-lime: 0 20px 50px -20px oklch(0.62 0.13 38 / 0.45);
+  --gradient-fir: radial-gradient(120% 80% at 50% 0%, oklch(0.985 0.008 80) 0%, var(--sand-raw) 70%);
+  --gradient-dark-warm: radial-gradient(120% 80% at 50% 0%, oklch(0.30 0.035 55) 0%, var(--espresso-raw) 60%);
 }
 
 @layer base {
