@@ -18,13 +18,13 @@ export function PhoneMockup() {
 
           <div className="flex h-full flex-col items-center justify-between px-6 pt-14 pb-8">
             <div className="text-center">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-mono">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/55 font-mono">
                 {t("phone.incoming")}
               </p>
-              <p className="mt-2 font-display text-lg text-foreground">
+              <p className="mt-2 font-display text-lg text-white">
                 KABSA CALL<span className="text-lime">.ai</span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground font-mono">00:42</p>
+              <p className="mt-1 text-xs text-white/55 font-mono">00:42</p>
             </div>
 
             <div className="flex flex-col items-center gap-3">
