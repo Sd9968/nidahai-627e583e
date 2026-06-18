@@ -1,9 +1,11 @@
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { PhoneMockup } from "./PhoneMockup";
 import { useLocale } from "@/lib/i18n";
+import { useBookDemo } from "@/lib/book-demo-context";
 
 export function Hero() {
   const { t } = useLocale();
+  const { openDialog } = useBookDemo();
 
   return (
     <section
@@ -29,15 +31,16 @@ export function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap items-center gap-4">
-            <a
-              href="#contact"
+            <button
+              type="button"
+              onClick={openDialog}
               className="group inline-flex items-center gap-3 rounded-full bg-ink py-2 ps-6 pe-2 text-sm font-medium text-paper hover:bg-pop transition-colors"
             >
               {t("hero.cta.book")}
               <span className="grid place-items-center size-10 rounded-full bg-paper text-ink group-hover:rotate-[-12deg] transition-transform">
                 <ArrowRight size={16} className="rtl:-scale-x-100" />
               </span>
-            </a>
+            </button>
             <a
               href="#how"
               className="inline-flex items-center gap-2 text-sm font-medium text-ink hover:text-pop transition-colors"

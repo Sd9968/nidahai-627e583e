@@ -3,10 +3,12 @@ import { Menu, X, Sun, Moon } from "lucide-react";
 import { Logo } from "./Logo";
 import { useLocale } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
+import { useBookDemo } from "@/lib/book-demo-context";
 
 export function Navbar() {
   const { t, locale, setLocale } = useLocale();
   const { theme, toggle } = useTheme();
+  const { openDialog } = useBookDemo();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -75,12 +77,13 @@ export function Navbar() {
             </button>
           </div>
 
-          <a
-            href="#contact"
+          <button
+            type="button"
+            onClick={openDialog}
             className="hidden sm:inline-flex items-center rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper hover:bg-pop transition-colors"
           >
             {t("nav.cta")}
-          </a>
+          </button>
 
           <button
             onClick={() => setOpen(!open)}

@@ -138,6 +138,29 @@ const en: Dict = {
   "footer.l.status": "Status",
   "footer.l.privacy": "Privacy",
   "footer.rights": "All rights reserved.",
+
+  // Book a demo dialog
+  "book.eyebrow": "Book a Demo",
+  "book.title.a": "Let's talk",
+  "book.title.b": "scheduling.",
+  "book.subtitle": "Tell us about your business and we'll get back to you within one business day.",
+  "book.f.name": "Full name",
+  "book.f.company": "Company",
+  "book.f.email": "Email",
+  "book.f.phone": "Phone",
+  "book.f.date": "Preferred date",
+  "book.f.lang": "Preferred language",
+  "book.f.message": "What would you like to discuss?",
+  "book.lang.either": "Either",
+  "book.cta.submit": "Send request",
+  "book.cta.sending": "Sending...",
+  "book.privacy": "We only use your details to reply to your request.",
+  "book.err.required": "Please fill in all required fields.",
+  "book.err.email": "Please enter a valid email address.",
+  "book.err.generic": "Something went wrong. Please try again.",
+  "book.success.title": "Request received.",
+  "book.success.subtitle": "Thanks — we'll be in touch shortly to set up your demo.",
+  "book.success.close": "Done",
 };
 
 const ar: Dict = {
@@ -256,6 +279,28 @@ const ar: Dict = {
   "footer.l.status": "الحالة",
   "footer.l.privacy": "الخصوصية",
   "footer.rights": "جميع الحقوق محفوظة.",
+
+  "book.eyebrow": "احجز عرضاً تجريبياً",
+  "book.title.a": "لنتحدث عن",
+  "book.title.b": "الجدولة.",
+  "book.subtitle": "أخبرنا عن عملك وسنعاود التواصل معك خلال يوم عمل واحد.",
+  "book.f.name": "الاسم الكامل",
+  "book.f.company": "الشركة",
+  "book.f.email": "البريد الإلكتروني",
+  "book.f.phone": "رقم الهاتف",
+  "book.f.date": "التاريخ المفضل",
+  "book.f.lang": "اللغة المفضلة",
+  "book.f.message": "ما الذي تود مناقشته؟",
+  "book.lang.either": "كلاهما",
+  "book.cta.submit": "إرسال الطلب",
+  "book.cta.sending": "جاري الإرسال...",
+  "book.privacy": "نستخدم بياناتك فقط للرد على طلبك.",
+  "book.err.required": "يرجى ملء جميع الحقول المطلوبة.",
+  "book.err.email": "يرجى إدخال بريد إلكتروني صالح.",
+  "book.err.generic": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+  "book.success.title": "تم استلام طلبك.",
+  "book.success.subtitle": "شكراً — سنتواصل معك قريباً لترتيب العرض التجريبي.",
+  "book.success.close": "تم",
 };
 
 const dictionaries: Record<Locale, Dict> = { en, ar };
