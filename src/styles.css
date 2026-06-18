@@ -164,7 +164,7 @@
 @utility text-cream-foreground { color: var(--cream-foreground); }
 @utility text-lime { color: var(--lime); }
 @utility text-fir { color: var(--fir-deep); }
-@utility border-lime-soft { border-color: oklch(0.92 0.18 122 / 0.25); }
+@utility border-lime-soft { border-color: oklch(0.22 0.025 50 / 0.14); }
 
 @utility waveform-bar {
   animation: waveform 1.1s ease-in-out infinite;
