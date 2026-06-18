@@ -97,6 +97,45 @@
   --shadow-pop: 0 20px 50px -20px rgba(255,106,26,0.45);
 }
 
+.dark {
+  /* Inverted Brandly palette — paper goes near-black, ink goes near-white,
+     pop accent unchanged so brand identity holds. */
+  --paper: #0B0B0B;
+  --sand:  #161616;
+  --ink:   #F5F4F1;
+  --pop:   #FF6A1A;
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: var(--sand);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--sand);
+  --secondary-foreground: var(--ink);
+  --muted: #1F1F1F;
+  --muted-foreground: #9A9A9A;
+  --accent: var(--pop);
+  --accent-foreground: var(--paper);
+  --border: rgba(245,244,241,0.10);
+  --input: rgba(245,244,241,0.10);
+  --ring: var(--ink);
+
+  --sidebar: var(--paper);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--sand);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: rgba(245,244,241,0.10);
+  --sidebar-ring: var(--ink);
+
+  --shadow-soft: 0 24px 60px -28px rgba(0,0,0,0.6), 0 6px 18px -8px rgba(0,0,0,0.4);
+}
+
+
 @layer base {
   * {
     border-color: var(--color-border);
