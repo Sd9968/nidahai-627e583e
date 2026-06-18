@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useLocale } from "@/lib/i18n";
 
 const FRAME_COUNT = 61;
 const frameSrc = (i: number) =>
   `/phone-sequence/f${String(i).padStart(3, "0")}.jpg`;
 
 export function ScrollSequence() {
-  const { t } = useLocale();
   const sectionRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagesRef = useRef<HTMLImageElement[]>([]);
@@ -119,25 +117,19 @@ export function ScrollSequence() {
           {/* Text rail (advances with scroll via CSS opacity stages) */}
           <div className="hidden lg:flex flex-col gap-10 pointer-events-none">
             <SequenceCopy
-              eyebrow={t("hero.badge")}
-              title={t("seq.step1.title", "Calls answered instantly")}
-              body={t("seq.step1.body", "Your AI concierge picks up in under 500ms, day or night.")}
-              progressStart={0}
-              progressEnd={0.33}
+              eyebrow="01"
+              title="Calls answered instantly"
+              body="Your AI concierge picks up in under 500ms, day or night."
             />
             <SequenceCopy
               eyebrow="02"
-              title={t("seq.step2.title", "Books the right slot")}
-              body={t("seq.step2.body", "It checks your calendar, suggests times, confirms the booking.")}
-              progressStart={0.33}
-              progressEnd={0.66}
+              title="Books the right slot"
+              body="It checks your calendar, suggests times, confirms the booking."
             />
             <SequenceCopy
               eyebrow="03"
-              title={t("seq.step3.title", "Speaks your customer's language")}
-              body={t("seq.step3.body", "Fluent English and Arabic, switching on the fly.")}
-              progressStart={0.66}
-              progressEnd={1}
+              title="Speaks your customer's language"
+              body="Fluent English and Arabic, switching on the fly."
             />
           </div>
 
@@ -161,8 +153,6 @@ function SequenceCopy({
   eyebrow: string;
   title: string;
   body: string;
-  progressStart: number;
-  progressEnd: number;
 }) {
   return (
     <div className="max-w-md">
