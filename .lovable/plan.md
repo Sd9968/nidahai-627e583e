@@ -1,52 +1,53 @@
-# Fonts + Full Arabic Toggle
+# Warm Editorial Recolor + Refined Scroll Motion
 
-## 1. Fonts
+Shift the entire site from the current dark fir-green/lime palette to a warm editorial palette. Keep all layout, fonts (Space Grotesk + Inter + Tajawal), copy, and i18n exactly as they are.
 
-Install via fontsource (no remote `<link>`s):
+## New palette
 
-- `@fontsource/space-grotesk` → `--font-display` (headings, techy geometric)
-- `@fontsource-variable/inter` → `--font-sans` (body)
-- `@fontsource/tajawal` → `--font-arabic` (used automatically when locale is `ar`)
-- Keep `@fontsource/jetbrains-mono` for small techy accents (pill labels, "Under 500ms latency", call timer in phone mockup) to push the techy vibe.
+| Token       | Value     | Use                              |
+| ----------- | --------- | -------------------------------- |
+| `--cream`   | `#FAF8F5` | Page background                  |
+| `--sand`    | `#F0EBE3` | Card / alternating section bg    |
+| `--espresso`| `#2D1B0E` | Primary text, dark sections, CTA |
+| `--mocha`   | `#4A3422` | Secondary text, borders          |
+| `--clay`    | `#C4654A` | Accent — buttons, highlights, waveform, badges |
+| `--clay-soft`| `#E8B8A8`| Soft tint, hover, glow           |
 
-Update `src/styles.css` `@theme`:
-- `--font-display: "Space Grotesk", sans-serif`
-- `--font-sans: "Inter Variable", "Inter", sans-serif`
-- `--font-arabic: "Tajawal", sans-serif`
-- `--font-mono: "JetBrains Mono", monospace`
+Semantic mapping (in `src/styles.css`):
+- `--background: cream`, `--foreground: espresso`
+- `--primary: clay`, `--primary-foreground: cream`
+- `--card: sand`, `--secondary: espresso` (for the one dark "Final CTA" band)
+- `--muted-foreground: mocha`
+- `--border: espresso @ 12%`
+- Replace `--gradient-fir` with `--gradient-warm` (radial cream → sand) and a new `--gradient-dark-warm` (espresso → mocha) for the single dark section
+- Replace `--shadow-lime` with `--shadow-clay` (warm tinted shadow)
 
-Imports go in `src/main.tsx` (or router entry). Remove old Fraunces / Inter Tight / IBM Plex Arabic references in `__root.tsx` head links and `styles.css`.
+## Component sweep
 
-## 2. Full Arabic translation on toggle
+Find/replace utility classes across all 11 landing components:
+- `bg-fir` / `bg-fir-deep` / `bg-fir-2` → `bg-cream` / `bg-sand` / `bg-espresso` as appropriate per section
+- `text-lime` → `text-clay`
+- `bg-lime` → `bg-clay`, `text-fir` (on lime buttons) → `text-cream`
+- `border-lime-soft` → `border-espresso/10`
+- Hero gradient swapped to warm cream gradient; lime glow blob → soft clay glow
+- Page wrapper in `src/routes/index.tsx`: `bg-fir text-foreground` → `bg-cream text-foreground`
+- One section (FinalCta) stays dark espresso for contrast — flips to cream text + clay CTA
 
-Lightweight in-app i18n (no library, no separate route) — toggle swaps every string and font family.
+## Scroll motion refresh
 
-**New file: `src/lib/i18n.tsx`**
-- `type Locale = "en" | "ar"`
-- React context `LocaleContext` + `useLocale()` hook returning `{ locale, setLocale, t, dir }`
-- `t(key)` looks up from a single `translations` object: `{ en: {...}, ar: {...} }`
-- Persist choice in `localStorage` ("kabsa-locale")
-- On change: set `document.documentElement.lang` and `dir` (`rtl` for ar, `ltr` for en), and toggle a `font-arabic` class on `<body>` so Tajawal applies globally for Arabic.
+Current `ScrollReveal` uses simple fade. Upgrade to a more refined Gen-Z editorial feel without going chaotic:
+- **Stagger**: section children fade + translate-up sequentially (60ms apart) instead of all together
+- **Blur-in**: add `filter: blur(8px) → blur(0)` to reveal — softer, more premium
+- **Scale**: subtle 0.97 → 1 on enter
+- **Exit on scroll-up**: keep reverse behavior (reverts when scrolling up), tuned with shorter duration
+- **Parallax accent**: hero phone mockup + section heading get a light translateY parallax on scroll (1.0× content, 0.85× heading)
+- All driven by Framer Motion already installed — no new deps
 
-**Wrap app** in `src/routes/__root.tsx` with `<LocaleProvider>` inside `RootComponent`.
+Out of scope: layout changes, copy edits, font swaps, new sections, color overrides per-component beyond the token sweep above.
 
-**Translation keys** — one entry per visible string across:
-`Navbar`, `Hero` (headline, subhead, CTAs, feature pills, phone mockup bubbles + caller name + "Incoming call…" + timer label), `FeatureStrip`, `HowItWorks` (step titles + descriptions), `Benefits` (card titles + bodies), `Bilingual` (now becomes "Languages" with sample dialogue in both), `UseCases` (industry names + taglines), `FinalCta`, `Footer`.
+## Files touched
 
-Every component imports `useLocale()` and replaces hardcoded strings with `t("hero.headline")` etc. No layout changes.
-
-**Navbar switch**: existing EN/AR pill calls `setLocale(...)`. Active state highlighted in lime.
-
-**RTL handling**: Setting `dir="rtl"` on `<html>` makes Tailwind's logical properties (`ms-*`, `me-*`, `ps-*`, `pe-*`, `text-start`, `text-end`) flip automatically. Audit current components and swap any directional `ml-*` / `mr-*` / `left-*` / `right-*` / `text-left` / `text-right` to logical equivalents so the layout mirrors correctly in Arabic. Flex rows stay (CSS flips them under `dir=rtl`). Icons that imply direction (arrows in CTAs / "How it works" chevrons) get a `rtl:-scale-x-100` utility.
-
-## 3. Files touched
-
-- new: `src/lib/i18n.tsx`
-- edit: `src/main.tsx` (fontsource imports), `src/styles.css` (`@theme` fonts + remove old @theme font tokens), `src/routes/__root.tsx` (drop Google Font links, wrap with `LocaleProvider`)
-- edit: every component in `src/components/landing/*` to consume `t()` and use logical spacing utilities
-
-## Out of scope
-
-- Color overhaul (you said you'll revisit colors separately)
-- URL-based locale (`/ar`) or SEO hreflang — toggle stays client-side per your request
-- Backend / translation service — strings are hand-written in `i18n.tsx`
+- `src/styles.css` — palette tokens, semantic mapping, gradient + shadow utilities
+- `src/routes/index.tsx` — wrapper bg class
+- `src/components/landing/ScrollReveal.tsx` — upgraded motion variants
+- `src/components/landing/*.tsx` (Hero, Navbar, FeatureStrip, HowItWorks, Benefits, Bilingual, UseCases, FinalCta, Footer, PhoneMockup, Logo) — class swaps only

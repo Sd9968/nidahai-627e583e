@@ -9,7 +9,7 @@ export function FinalCta() {
         className="pointer-events-none absolute inset-0 opacity-60"
         style={{
           background:
-            "radial-gradient(50% 60% at 50% 50%, oklch(0.92 0.18 122 / 0.18) 0%, transparent 70%)",
+            "radial-gradient(50% 60% at 50% 50%, oklch(0.62 0.13 38 / 0.18) 0%, transparent 70%)",
         }}
       />
       <div className="relative mx-auto max-w-4xl text-center">

@@ -8,7 +8,7 @@ export function PhoneMockup() {
       <div className="absolute -inset-10 -z-10 rounded-full bg-lime/20 blur-3xl" />
 
       <div className="relative rounded-[2.75rem] bg-[#0a0a0a] p-3 shadow-soft ring-1 ring-white/10">
-        <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-b from-[#062F24] to-[#001E17] aspect-[9/19]">
+        <div className="relative overflow-hidden rounded-[2.25rem] bg-gradient-to-b from-[#3a2418] to-[#1a0f08] aspect-[9/19]">
           <div className="absolute left-1/2 top-2 -translate-x-1/2 h-6 w-24 rounded-full bg-black/80" />
 
           <div className="flex items-center justify-between px-6 pt-3 text-[10px] text-white/70 font-mono">
@@ -18,13 +18,13 @@ export function PhoneMockup() {
 
           <div className="flex h-full flex-col items-center justify-between px-6 pt-14 pb-8">
             <div className="text-center">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground font-mono">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-white/55 font-mono">
                 {t("phone.incoming")}
               </p>
-              <p className="mt-2 font-display text-lg text-foreground">
+              <p className="mt-2 font-display text-lg text-white">
                 KABSA CALL<span className="text-lime">.ai</span>
               </p>
-              <p className="mt-1 text-xs text-muted-foreground font-mono">00:42</p>
+              <p className="mt-1 text-xs text-white/55 font-mono">00:42</p>
             </div>
 
             <div className="flex flex-col items-center gap-3">
