@@ -13,6 +13,8 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { LocaleProvider } from "../lib/i18n";
 import { ThemeProvider } from "../lib/theme";
+import { BookDemoProvider } from "../lib/book-demo-context";
+import { BookDemoDialog } from "../components/landing/BookDemoDialog";
 
 function NotFoundComponent() {
   return (
@@ -116,8 +118,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <LocaleProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <BookDemoProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <BookDemoDialog />
+          </BookDemoProvider>
         </LocaleProvider>
       </ThemeProvider>
     </QueryClientProvider>

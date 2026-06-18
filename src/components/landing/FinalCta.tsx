@@ -1,8 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import { useLocale } from "@/lib/i18n";
+import { useBookDemo } from "@/lib/book-demo-context";
 
 export function FinalCta() {
   const { t } = useLocale();
+  const { openDialog } = useBookDemo();
   return (
     <section id="contact" className="relative overflow-hidden bg-ink py-28 md:py-40 px-6">
       <div
@@ -20,15 +22,16 @@ export function FinalCta() {
           {t("cta.subtitle")}
         </p>
         <div className="mt-12 flex flex-wrap justify-center gap-4">
-          <a
-            href="#"
+          <button
+            type="button"
+            onClick={openDialog}
             className="group inline-flex items-center gap-3 rounded-full bg-paper py-2 ps-6 pe-2 text-sm font-medium text-ink hover:bg-pop hover:text-paper transition-colors"
           >
             {t("cta.book")}
             <span className="grid place-items-center size-10 rounded-full bg-ink text-paper group-hover:rotate-[-12deg] transition-transform">
               <ArrowRight size={16} className="rtl:-scale-x-100" />
             </span>
-          </a>
+          </button>
           <a
             href="mailto:hello@kabsacall.ai"
             className="inline-flex items-center gap-2 rounded-full border border-paper/25 px-6 py-3 text-sm font-medium text-paper hover:bg-paper/10 transition-colors"
