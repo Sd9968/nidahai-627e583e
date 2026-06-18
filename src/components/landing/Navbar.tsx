@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import { Logo } from "./Logo";
 import { useLocale } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 
 export function Navbar() {
   const { t, locale, setLocale } = useLocale();
+  const { theme, toggle } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -45,7 +47,15 @@ export function Navbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 md:gap-3">
+          <button
+            onClick={toggle}
+            aria-label="Toggle theme"
+            className="grid place-items-center size-9 rounded-full border border-hairline text-ink hover:bg-sand transition-colors"
+          >
+            {theme === "dark" ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
+
           <div className="hidden md:flex items-center rounded-full border border-hairline p-1 text-xs">
             <button
               onClick={() => setLocale("en")}
