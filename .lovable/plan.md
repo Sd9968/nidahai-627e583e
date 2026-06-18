@@ -1,49 +1,37 @@
-## Apply "Brandly" Editorial Theme
+## Goal
+Add a floating "Book a Demo" form that opens from any "Book a demo" CTA, collects lead info, and emails it to **aszadms1@gmail.com**.
 
-Re-skin the landing to match the reference: crisp white background, oversized ultra-bold black condensed display headings, refined body text, minimal nav, black pill CTAs with a small circular arrow icon.
+## UX
+- Reusable `<BookDemoDialog>` modal triggered by every existing "Book a demo" button (Navbar, Hero, FinalCta, etc.) via a shared `BookDemoProvider` + `useBookDemo()` context. Replace current button click handlers with `openBookDemo()`.
+- Styled to match the Brandly theme: white/ink panel with `border-hairline`, Archivo Black heading, Inter body, orange `--pop` accent on the submit button (black pill with white arrow on light mode, inverted in dark).
+- Fully bilingual (EN/AR) using existing `LocaleProvider`; RTL-aware.
 
-### Typography
-- Add **Archivo Black** (display, ultra-heavy) and keep **Inter** (body); drop Space Grotesk as display.
-  - `--font-display: "Archivo Black"` — used for all H1/H2/H3
-  - `--font-sans: "Inter"` — body, nav, labels
-  - Arabic stays **Tajawal** (heavier weights for headings)
-- Heading scale (tight tracking, uppercase on hero):
-  - H1: `clamp(3.5rem, 8vw, 6.5rem)`, leading-[0.95], tracking-tight, uppercase
-  - H2 section: `clamp(2.25rem, 5vw, 4rem)`, uppercase
-  - H3: `1.5rem` bold
-- Body: 1rem / 1.6, `text-foreground/70` for secondary
+## Form fields
+Name, Company, Email, Phone, Preferred date (shadcn date picker), Preferred language (select: EN / AR / Either), Message (textarea).
+Validated client-side with **zod** + react-hook-form. Inline errors, loading state, success state, toast on send.
 
-### Color palette (replace Warm Editorial)
-- `--background: #FFFFFF` (pure white)
-- `--foreground: #0A0A0A` (near-black)
-- `--card: #F5F4F1` (subtle off-white card)
-- `--muted-foreground: #6B6B6B`
-- `--primary: #0A0A0A` (black) / `--primary-foreground: #FFFFFF`
-- `--accent: #FF6A1A` (single orange pop, used sparingly like the helmet visor)
-- `--border: rgba(10,10,10,0.08)`
-- Remove clay/espresso/cream gradients; replace with flat white + thin hairline borders
+## Email delivery (Lovable Emails)
+Prerequisites done in order:
+1. Enable **Lovable Cloud**.
+2. Configure email domain via `<presentation-open-email-setup>` dialog (user verifies DNS).
+3. `email_domain--setup_email_infra` (queue + cron).
+4. `email_domain--scaffold_transactional_email` (creates send route + templates).
 
-### Component updates
-- **Navbar**: transparent on white, black wordmark left, centered text links (About, Features, Pricing, FAQ, Help mapping → existing keys), right side Sign Up (ghost) + Login (black pill). Underline on hover, no background blur.
-- **Hero**: left column oversized uppercase H1 in three stacked lines, short subhead, **black pill CTA** with white circular arrow icon (`ArrowRight` inside a white circle). Right column keeps PhoneMockup but on white with soft shadow only (no dark gradient panel). Two stat blocks ("50+ ...", "5+ ...") top-right and bottom-right, uppercase bold + small body.
-- **Sections** (HowItWorks, Benefits, UseCases, FeatureStrip, Bilingual): all white background, uppercase H2, generous whitespace, hairline borders instead of filled dark cards. Orange accent only on key numerals/icons.
-- **FinalCta**: invert — solid black panel, white uppercase headline, white pill button with black arrow.
-- **Footer**: white, black text, simple row of brand chips (like "Frame Blox / Supa Blox …" strip) — repurpose as trust/feature row.
-- **PhoneMockup**: light frame (white bezel, light gray screen, black text) to fit the bright theme.
+Then:
+- Add React Email template `src/lib/email-templates/demo-request.tsx` rendering all submitted fields in a clean Brandly-styled layout, registered in `registry.ts`.
+- Since the form is public (no login), create a dedicated public endpoint `src/routes/api/public/book-demo.ts` that:
+  - Validates input with zod
+  - Calls the internal send route using the service-role-authenticated path to send to `aszadms1@gmail.com` with `templateName: 'demo-request'` and the form data as `templateData`
+  - Returns `{ ok: true }` or a sanitized error
+- Frontend POSTs to `/api/public/book-demo`. No data stored in DB (email-only per your choice).
 
-### Files to edit
-- `src/styles.css` — fonts import (`@fontsource/archivo-black`), tokens, utility remap
-- `src/components/landing/Navbar.tsx`
-- `src/components/landing/Hero.tsx`
-- `src/components/landing/HowItWorks.tsx`
-- `src/components/landing/Benefits.tsx`
-- `src/components/landing/UseCases.tsx`
-- `src/components/landing/FeatureStrip.tsx`
-- `src/components/landing/Bilingual.tsx`
-- `src/components/landing/FinalCta.tsx`
-- `src/components/landing/Footer.tsx`
-- `src/components/landing/PhoneMockup.tsx`
-- `package.json` — add `@fontsource/archivo-black`
+## Files
+- New: `src/components/landing/BookDemoDialog.tsx`, `src/lib/book-demo-context.tsx`, `src/lib/email-templates/demo-request.tsx`, `src/routes/api/public/book-demo.ts`
+- Edited: `src/routes/__root.tsx` (wrap with `BookDemoProvider`), `src/lib/email-templates/registry.ts`, and all components with "Book a demo" buttons (Navbar, Hero, FinalCta, etc.) to call `openBookDemo()`
+- i18n keys added to the existing locale dictionary
 
-### Out of scope
-- Copy/content changes, i18n keys, layout structure beyond what's listed, new sections, swapping the mockup for the helmet photo.
+## Out of scope
+DB storage, calendar booking/availability, SMS, CRM integration, captcha (can add later if spam becomes an issue).
+
+## Note
+After approval I'll enable Cloud and trigger the email-domain setup dialog — you'll need to add a couple of DNS records at your registrar before emails actually deliver. The form UI works immediately; sends activate once DNS verifies.
