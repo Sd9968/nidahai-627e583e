@@ -13,34 +13,34 @@ export function UseCases() {
   ];
 
   return (
-    <section className="bg-fir py-28 md:py-36 px-6">
+    <section className="bg-paper py-28 md:py-36 px-6 border-t border-hairline">
       <div className="mx-auto max-w-7xl">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-mono">
+            <span className="text-[11px] uppercase tracking-[0.22em] text-ink/55 font-mono">
               {t("uc.eyebrow")}
             </span>
-            <h2 className="mt-3 font-display text-4xl md:text-5xl leading-tight text-foreground">
-              {t("uc.title.a")} <em className="not-italic text-lime">{t("uc.title.b")}</em>
+            <h2 className="mt-4 font-display uppercase text-ink text-[clamp(2.25rem,5vw,4.25rem)] leading-[0.95]">
+              {t("uc.title.a")} <span className="text-pop">{t("uc.title.b")}</span>
             </h2>
           </div>
-          <a href="#contact" className="inline-flex items-center gap-1.5 text-sm text-lime hover:underline">
+          <a href="#contact" className="inline-flex items-center gap-1.5 text-sm font-medium text-ink hover:text-pop">
             {t("uc.cta")}
-            <ArrowUpRight size={14} className="rtl:-scale-x-100" />
+            <ArrowUpRight size={16} className="rtl:-scale-x-100" />
           </a>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px bg-hairline border border-hairline rounded-2xl overflow-hidden" style={{ backgroundColor: "rgba(10,10,10,0.10)" }}>
           {cases.map((c) => (
             <div
               key={c.title}
-              className="group rounded-3xl border border-lime-soft bg-fir-deep p-7 hover:border-lime/60 hover:-translate-y-1 transition-all duration-300"
+              className="group bg-paper p-8 hover:bg-sand transition-colors"
             >
-              <span className="grid place-items-center size-12 rounded-2xl bg-lime/10 text-lime">
-                <c.icon size={22} />
+              <span className="grid place-items-center size-12 rounded-full bg-ink text-paper">
+                <c.icon size={20} />
               </span>
-              <h3 className="mt-6 font-display text-2xl text-foreground">{c.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{c.desc}</p>
+              <h3 className="mt-6 font-display uppercase text-2xl text-ink">{c.title}</h3>
+              <p className="mt-2 text-sm text-ink/60 leading-relaxed">{c.desc}</p>
             </div>
           ))}
         </div>

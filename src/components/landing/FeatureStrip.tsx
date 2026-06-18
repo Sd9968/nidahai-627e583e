@@ -11,17 +11,17 @@ export function FeatureStrip() {
   ];
 
   return (
-    <section id="features" className="relative -mt-12 px-6">
+    <section id="features" className="relative bg-paper px-6 py-10 border-y border-hairline">
       <div className="mx-auto max-w-7xl">
-        <div className="rounded-3xl bg-cream text-cream-foreground shadow-soft grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-black/5">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 lg:divide-x divide-hairline">
           {items.map((it) => (
-            <div key={it.title} className="p-6 md:p-8 flex items-start gap-4">
-              <span className="grid place-items-center size-11 shrink-0 rounded-2xl bg-fir text-lime">
-                <it.icon size={20} />
+            <div key={it.title} className="px-6 flex items-start gap-4">
+              <span className="grid place-items-center size-10 shrink-0 rounded-full bg-ink text-paper">
+                <it.icon size={16} />
               </span>
               <div>
-                <h3 className="font-display text-lg">{it.title}</h3>
-                <p className="mt-1 text-sm text-cream-foreground/70 leading-snug">{it.desc}</p>
+                <h3 className="font-display uppercase text-base text-ink tracking-tight">{it.title}</h3>
+                <p className="mt-1 text-xs text-ink/60 leading-snug">{it.desc}</p>
               </div>
             </div>
           ))}

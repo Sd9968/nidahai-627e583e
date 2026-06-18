@@ -1,53 +1,49 @@
-# Warm Editorial Recolor + Refined Scroll Motion
+## Apply "Brandly" Editorial Theme
 
-Shift the entire site from the current dark fir-green/lime palette to a warm editorial palette. Keep all layout, fonts (Space Grotesk + Inter + Tajawal), copy, and i18n exactly as they are.
+Re-skin the landing to match the reference: crisp white background, oversized ultra-bold black condensed display headings, refined body text, minimal nav, black pill CTAs with a small circular arrow icon.
 
-## New palette
+### Typography
+- Add **Archivo Black** (display, ultra-heavy) and keep **Inter** (body); drop Space Grotesk as display.
+  - `--font-display: "Archivo Black"` — used for all H1/H2/H3
+  - `--font-sans: "Inter"` — body, nav, labels
+  - Arabic stays **Tajawal** (heavier weights for headings)
+- Heading scale (tight tracking, uppercase on hero):
+  - H1: `clamp(3.5rem, 8vw, 6.5rem)`, leading-[0.95], tracking-tight, uppercase
+  - H2 section: `clamp(2.25rem, 5vw, 4rem)`, uppercase
+  - H3: `1.5rem` bold
+- Body: 1rem / 1.6, `text-foreground/70` for secondary
 
-| Token       | Value     | Use                              |
-| ----------- | --------- | -------------------------------- |
-| `--cream`   | `#FAF8F5` | Page background                  |
-| `--sand`    | `#F0EBE3` | Card / alternating section bg    |
-| `--espresso`| `#2D1B0E` | Primary text, dark sections, CTA |
-| `--mocha`   | `#4A3422` | Secondary text, borders          |
-| `--clay`    | `#C4654A` | Accent — buttons, highlights, waveform, badges |
-| `--clay-soft`| `#E8B8A8`| Soft tint, hover, glow           |
+### Color palette (replace Warm Editorial)
+- `--background: #FFFFFF` (pure white)
+- `--foreground: #0A0A0A` (near-black)
+- `--card: #F5F4F1` (subtle off-white card)
+- `--muted-foreground: #6B6B6B`
+- `--primary: #0A0A0A` (black) / `--primary-foreground: #FFFFFF`
+- `--accent: #FF6A1A` (single orange pop, used sparingly like the helmet visor)
+- `--border: rgba(10,10,10,0.08)`
+- Remove clay/espresso/cream gradients; replace with flat white + thin hairline borders
 
-Semantic mapping (in `src/styles.css`):
-- `--background: cream`, `--foreground: espresso`
-- `--primary: clay`, `--primary-foreground: cream`
-- `--card: sand`, `--secondary: espresso` (for the one dark "Final CTA" band)
-- `--muted-foreground: mocha`
-- `--border: espresso @ 12%`
-- Replace `--gradient-fir` with `--gradient-warm` (radial cream → sand) and a new `--gradient-dark-warm` (espresso → mocha) for the single dark section
-- Replace `--shadow-lime` with `--shadow-clay` (warm tinted shadow)
+### Component updates
+- **Navbar**: transparent on white, black wordmark left, centered text links (About, Features, Pricing, FAQ, Help mapping → existing keys), right side Sign Up (ghost) + Login (black pill). Underline on hover, no background blur.
+- **Hero**: left column oversized uppercase H1 in three stacked lines, short subhead, **black pill CTA** with white circular arrow icon (`ArrowRight` inside a white circle). Right column keeps PhoneMockup but on white with soft shadow only (no dark gradient panel). Two stat blocks ("50+ ...", "5+ ...") top-right and bottom-right, uppercase bold + small body.
+- **Sections** (HowItWorks, Benefits, UseCases, FeatureStrip, Bilingual): all white background, uppercase H2, generous whitespace, hairline borders instead of filled dark cards. Orange accent only on key numerals/icons.
+- **FinalCta**: invert — solid black panel, white uppercase headline, white pill button with black arrow.
+- **Footer**: white, black text, simple row of brand chips (like "Frame Blox / Supa Blox …" strip) — repurpose as trust/feature row.
+- **PhoneMockup**: light frame (white bezel, light gray screen, black text) to fit the bright theme.
 
-## Component sweep
+### Files to edit
+- `src/styles.css` — fonts import (`@fontsource/archivo-black`), tokens, utility remap
+- `src/components/landing/Navbar.tsx`
+- `src/components/landing/Hero.tsx`
+- `src/components/landing/HowItWorks.tsx`
+- `src/components/landing/Benefits.tsx`
+- `src/components/landing/UseCases.tsx`
+- `src/components/landing/FeatureStrip.tsx`
+- `src/components/landing/Bilingual.tsx`
+- `src/components/landing/FinalCta.tsx`
+- `src/components/landing/Footer.tsx`
+- `src/components/landing/PhoneMockup.tsx`
+- `package.json` — add `@fontsource/archivo-black`
 
-Find/replace utility classes across all 11 landing components:
-- `bg-fir` / `bg-fir-deep` / `bg-fir-2` → `bg-cream` / `bg-sand` / `bg-espresso` as appropriate per section
-- `text-lime` → `text-clay`
-- `bg-lime` → `bg-clay`, `text-fir` (on lime buttons) → `text-cream`
-- `border-lime-soft` → `border-espresso/10`
-- Hero gradient swapped to warm cream gradient; lime glow blob → soft clay glow
-- Page wrapper in `src/routes/index.tsx`: `bg-fir text-foreground` → `bg-cream text-foreground`
-- One section (FinalCta) stays dark espresso for contrast — flips to cream text + clay CTA
-
-## Scroll motion refresh
-
-Current `ScrollReveal` uses simple fade. Upgrade to a more refined Gen-Z editorial feel without going chaotic:
-- **Stagger**: section children fade + translate-up sequentially (60ms apart) instead of all together
-- **Blur-in**: add `filter: blur(8px) → blur(0)` to reveal — softer, more premium
-- **Scale**: subtle 0.97 → 1 on enter
-- **Exit on scroll-up**: keep reverse behavior (reverts when scrolling up), tuned with shorter duration
-- **Parallax accent**: hero phone mockup + section heading get a light translateY parallax on scroll (1.0× content, 0.85× heading)
-- All driven by Framer Motion already installed — no new deps
-
-Out of scope: layout changes, copy edits, font swaps, new sections, color overrides per-component beyond the token sweep above.
-
-## Files touched
-
-- `src/styles.css` — palette tokens, semantic mapping, gradient + shadow utilities
-- `src/routes/index.tsx` — wrapper bg class
-- `src/components/landing/ScrollReveal.tsx` — upgraded motion variants
-- `src/components/landing/*.tsx` (Hero, Navbar, FeatureStrip, HowItWorks, Benefits, Bilingual, UseCases, FinalCta, Footer, PhoneMockup, Logo) — class swaps only
+### Out of scope
+- Copy/content changes, i18n keys, layout structure beyond what's listed, new sections, swapping the mockup for the helmet photo.
