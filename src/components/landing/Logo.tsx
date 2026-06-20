@@ -1,11 +1,8 @@
 export function Logo({ className = "" }: { className?: string }) {
   return (
-    <a href="#home" className={`inline-flex flex-col font-display font-semibold tracking-tight leading-[0.85] ${className}`}>
-      <span className="text-[1.35em]">Yaran</span>
-      <span className="inline-flex items-baseline gap-0 text-base">
-        <span>Arabia</span>
-        <span className="text-lime">.ai</span>
-      </span>
+    <a href="#home" className={`inline-flex items-baseline gap-0 font-display text-xl font-semibold tracking-tight ${className}`}>
+      <span>Yaran Arabia</span>
+      <span className="text-lime">.ai</span>
     </a>
   );
 }
