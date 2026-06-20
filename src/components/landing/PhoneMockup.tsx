@@ -22,7 +22,7 @@ export function PhoneMockup() {
                 {t("phone.incoming")}
               </p>
               <p className="mt-2 font-display uppercase text-lg text-ink">
-                KABSA CALL<span className="text-pop">.ai</span>
+                Yaran<span className="text-pop">.ai</span>
               </p>
               <p className="mt-1 text-xs text-ink/55 font-mono">00:42</p>
             </div>

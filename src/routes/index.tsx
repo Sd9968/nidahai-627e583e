@@ -13,13 +13,13 @@ import { ScrollReveal } from "@/components/landing/ScrollReveal";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "KABSA CALL.ai — AI Voice Scheduling, 24/7" },
+      { title: "Yaran.ai — AI Voice Scheduling, 24/7" },
       {
         name: "description",
         content:
-          "KABSA CALL.ai is an AI voice agent that answers calls and books, reschedules, or cancels appointments 24/7 in English and Arabic.",
+          "Yaran.ai is an AI voice agent that answers calls and books, reschedules, or cancels appointments 24/7 in English and Arabic.",
       },
-      { property: "og:title", content: "KABSA CALL.ai — AI Voice Scheduling, 24/7" },
+      { property: "og:title", content: "Yaran.ai — AI Voice Scheduling, 24/7" },
       {
         property: "og:description",
         content:
