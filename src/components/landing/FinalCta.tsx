@@ -33,7 +33,7 @@ export function FinalCta() {
             </span>
           </button>
           <a
-            href="mailto:hello@yaran.ai"
+            href="mailto:hello@yaranarabia.ai"
             className="inline-flex items-center gap-2 rounded-full border border-paper/25 px-6 py-3 text-sm font-medium text-paper hover:bg-paper/10 transition-colors"
           >
             {t("cta.contact")}
