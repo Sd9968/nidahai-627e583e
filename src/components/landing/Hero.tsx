@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { PhoneMockup } from "./PhoneMockup";
 import { useLocale } from "@/lib/i18n";
@@ -6,14 +8,27 @@ import { useBookDemo } from "@/lib/book-demo-context";
 export function Hero() {
   const { t } = useLocale();
   const { openDialog } = useBookDemo();
+  const prefersReducedMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+  const phoneY = useTransform(scrollYProgress, [0, 1], ["0%", "-25%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const fade = useTransform(scrollYProgress, [0, 0.8], [1, 0.3]);
 
   return (
     <section
+      ref={sectionRef}
       id="home"
       className="relative overflow-hidden bg-paper pt-32 pb-20 md:pt-40 md:pb-28"
     >
       <div className="relative mx-auto grid max-w-7xl grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-16 lg:gap-12 px-6 items-center">
-        <div className="fade-up">
+        <motion.div
+          className="fade-up"
+          style={prefersReducedMotion ? undefined : { y: textY, opacity: fade }}
+        >
           <span className="inline-flex items-center gap-2 rounded-full border border-hairline px-3 py-1 text-[11px] uppercase tracking-[0.18em] text-ink/60 font-mono">
             <span className="size-1.5 rounded-full bg-pop animate-pulse" />
             {t("hero.badge")}
@@ -49,11 +64,14 @@ export function Hero() {
               {t("hero.cta.demo")}
             </a>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="relative fade-up">
+        <motion.div
+          className="relative fade-up"
+          style={prefersReducedMotion ? undefined : { y: phoneY }}
+        >
           <PhoneMockup />
-        </div>
+        </motion.div>
       </div>
     </section>
   );
