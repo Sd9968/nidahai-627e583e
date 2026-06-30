@@ -8,6 +8,7 @@ import { Bilingual } from "@/components/landing/Bilingual";
 import { UseCases } from "@/components/landing/UseCases";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
+import { Marquee } from "@/components/landing/Marquee";
 import { ScrollReveal } from "@/components/landing/ScrollReveal";
 
 export const Route = createFileRoute("/")({
@@ -39,8 +40,9 @@ function Index() {
         <ScrollReveal intensity="soft"><FeatureStrip /></ScrollReveal>
         <ScrollReveal intensity="medium"><HowItWorks /></ScrollReveal>
         <ScrollReveal intensity="medium"><Benefits /></ScrollReveal>
+        <Marquee />
         <ScrollReveal intensity="strong"><Bilingual /></ScrollReveal>
-        <ScrollReveal intensity="medium"><UseCases /></ScrollReveal>
+        <UseCases />
         <ScrollReveal intensity="strong"><FinalCta /></ScrollReveal>
       </main>
       <Footer />
