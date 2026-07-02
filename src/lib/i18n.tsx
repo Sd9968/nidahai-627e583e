@@ -223,7 +223,7 @@ const ar: Dict = {
   "coming.en.title.a": "Launching",
   "coming.en.title.b": "Soon",
   "coming.en.subtitle":
-    "NidahAI هو وكيل صوتي بالذكاء الاصطناعي سيرد على المكالمات، ويحجز المواعيد، ويُخطّر فريقك — بالإنجليزية والعربية.",
+    "NidahAI is an AI voice agent that will answer calls, book appointments, and notify your team — in English and Arabic.",
   "coming.cta": "احصل على وصول مبكر",
 
   // Final CTA
