@@ -93,19 +93,6 @@ const en: Dict = {
     "NidahAI is an AI voice agent that will answer calls, book appointments, and notify your team — in English and Arabic.",
   "coming.cta": "Get early access",
 
-
-  // Coming Soon
-  "coming.ar.eyebrow": "إطلاق المنتج",
-  "coming.ar.title": "قريباً",
-  "coming.ar.subtitle":
-    "يتم بناء NidahAI لإدارة مكالماتك ومواعيدك على مدار الساعة. كن من أوائل من يجربه.",
-  "coming.en.eyebrow": "Launching Soon",
-  "coming.en.title.a": "Launching",
-  "coming.en.title.b": "Soon",
-  "coming.en.subtitle":
-    "NidahAI هو وكيل صوتي بالذكاء الاصطناعي سيرد على المكالمات، ويحجز المواعيد، ويُخطّر فريقك — بالإنجليزية والعربية.",
-  "coming.cta": "احصل على وصول مبكر",
-
   // Final CTA
   "cta.title.a": "Ready to stop missing",
   "cta.title.b": "customer calls?",
