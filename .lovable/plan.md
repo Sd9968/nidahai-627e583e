@@ -1,28 +1,32 @@
-## Changes
+Add a new "Coming Soon / Launching Soon" section to the current NidahAI landing page, styled to match the existing Brandly editorial monochrome + orange theme.
 
-**1. Remove the Use Cases section**
-- Delete `src/components/landing/UseCases.tsx`
-- Remove its import and `<UseCases />` (with surrounding `ScrollReveal`) from `src/routes/index.tsx`
-- Remove `uc.*` keys from both `en` and `ar` dictionaries in `src/lib/i18n.tsx`
+### What will be built
 
-**2. Put Arabic first, highlight Arabic (Bilingual section)**
-- In `src/components/landing/Bilingual.tsx`, swap card order so the Arabic card renders first, English second
-- Update heading translations so "Arabic" is the highlighted (orange `text-pop`) word and comes before "English":
-  - EN: "BUILT FOR **ARABIC** & ENGLISH CONVERSATIONS."
-  - AR: mirror equivalent with العربية highlighted first
-- Update keys `bi.title.a/b/c` in both locales accordingly
+1. **New component** `src/components/landing/ComingSoon.tsx`
+   - Full-width section with a dark background (`bg-ink`) so it breaks up the page rhythm between `Bilingual` and `FinalCta`.
+   - Bilingual headline with **Arabic first**: large Arabic word "قريباً" highlighted in `text-pop`, followed by English "Launching Soon" in `font-display`.
+   - A short supporting sentence in both languages explaining the product launch.
+   - A single, simple action: a CTA button that opens the existing **Book a Demo** dialog (`useBookDemo` context), so visitors can request early access without adding a new backend flow.
+   - A small pulsing orange dot / waveform accent to tie in the phone/audio theme.
 
-**3. Remove latency claims (we don't know the number)**
-Remove every "<500ms" / "Under 500ms Latency" / "Ultra-Low Latency" reference:
-- `src/lib/i18n.tsx`: drop `hero.pill.latency`, `fs.2.*`, `ben.m2.*` (or replace with a non-numeric equivalent — see question below)
-- `src/components/landing/Hero.tsx`: remove the latency pill
-- `src/components/landing/FeatureStrip.tsx`: remove the latency feature (grid becomes 3 items) — or replace
-- `src/components/landing/Benefits.tsx`: remove the `<500ms` metric card — or replace
+2. **Placement in `src/routes/index.tsx`**
+   - Insert `<ScrollReveal intensity="medium"><ComingSoon /></ScrollReveal>` between the `Bilingual` and `FinalCta` sections.
 
-## Question before I build
+3. **i18n updates** in `src/lib/i18n.tsx`
+   - Add new keys for both `en` and `ar` dictionaries:
+     - `coming.eyebrow`
+     - `coming.title.a` (Arabic word / "Launching")
+     - `coming.title.b` (highlighted "قريباً" / "Soon")
+     - `coming.subtitle`
+     - `coming.cta` ("Get early access" / "احصل على وصول مبكر")
+   - Arabic text will be written and placed first, mirroring the current `Bilingual.tsx` pattern.
 
-For the two spots where latency was a stat/feature tile (FeatureStrip and Benefits metrics), do you want me to:
-- **(a) Just remove them** (FeatureStrip becomes 3 tiles, Benefits metric grid becomes 3 cards), or
-- **(b) Replace with a non-numeric equivalent** like "Natural, real-time conversation" / "Human-like Response"?
+4. **Responsive + theme-safe details**
+   - Use logical Tailwind spacing (`pe-*`, `ps-*`) so Arabic RTL layout stays correct.
+   - Use only semantic tokens (`bg-ink`, `text-paper`, `text-pop`, `border-hairline-light`) so the section automatically adapts to light/dark mode toggles.
+   - The section will collapse gracefully on mobile with the Arabic headline first, English below, and a full-width CTA.
 
-I'll default to **(a) remove** unless you say otherwise.
+### Out of scope
+
+- No new backend/email endpoint. The section will reuse the existing `BookDemoDialog` and Resend flow.
+- No countdown timer or fixed launch date unless you ask for one later.
