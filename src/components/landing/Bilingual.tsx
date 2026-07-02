@@ -20,7 +20,7 @@ export function Bilingual() {
 
         <div className="mt-14 grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card lang="AR" rtl highlight>
-            <p className="font-arabic font-extrabold text-2xl md:text-3xl leading-tight text-ink" dir="rtl">
+            <p className="font-arabic font-extrabold text-2xl md:text-3xl leading-tight text-paper" dir="rtl">
               {t("bi.ar.quote")}
             </p>
           </Card>
