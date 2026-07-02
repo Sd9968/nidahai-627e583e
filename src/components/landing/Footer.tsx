@@ -6,17 +6,14 @@ export function Footer() {
   const cols = [
     {
       title: t("footer.col.product"),
-      links: [t("footer.l.features"), t("footer.l.how"), t("footer.l.pricing"), t("footer.l.languages")],
+      links: [t("footer.l.features"), t("footer.l.how"), t("footer.l.languages")],
     },
     {
       title: t("footer.col.company"),
-      links: [t("footer.l.about"), t("footer.l.careers"), t("footer.l.press"), t("footer.l.partners")],
-    },
-    {
-      title: t("footer.col.support"),
-      links: [t("footer.l.contact"), t("footer.l.help"), t("footer.l.status"), t("footer.l.privacy")],
+      links: [t("footer.l.about")],
     },
   ];
+
 
   return (
     <footer className="bg-paper border-t border-hairline px-6 pt-20 pb-10">
