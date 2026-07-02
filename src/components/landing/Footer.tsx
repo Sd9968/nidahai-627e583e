@@ -46,7 +46,7 @@ export function Footer() {
 
         <div className="mt-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-8 border-t border-hairline">
           <p className="text-xs text-ink/55 font-mono">
-            © {new Date().getFullYear()} Yaran Arabia.ai — {t("footer.rights")}
+            © {new Date().getFullYear()} NidahAI — {t("footer.rights")}
           </p>
           <div className="flex items-center rounded-full border border-hairline p-1 text-xs">
             <button

@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 // Once you verify a domain at resend.com/domains, swap this to aszadms1@gmail.com
 // and update FROM_EMAIL to use your verified domain (e.g. "hello@yourdomain.com").
 const TO_EMAIL = "sdaszad127@gmail.com";
-const FROM_EMAIL = "Yaran Arabia.ai <onboarding@resend.dev>";
+const FROM_EMAIL = "NidahAI <onboarding@resend.dev>";
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
 type Payload = {
@@ -89,7 +89,7 @@ export const Route = createFileRoute("/api/public/book-demo")({
 <html><body style="margin:0;padding:0;background:#f5f4f1;font-family:-apple-system,Segoe UI,Inter,Arial,sans-serif;color:#0a0a0a;">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
     <div style="background:#ffffff;border:1px solid rgba(10,10,10,0.08);border-radius:20px;padding:32px;">
-      <p style="margin:0;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#0a0a0a99;">Yaran Arabia.ai</p>
+      <p style="margin:0;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#0a0a0a99;">NidahAI</p>
       <h1 style="margin:8px 0 24px;font-size:26px;line-height:1.1;font-weight:900;text-transform:uppercase;">
         New <span style="color:#FF6A1A">demo request</span>
       </h1>
@@ -110,7 +110,7 @@ export const Route = createFileRoute("/api/public/book-demo")({
       </div>
       <p style="margin:24px 0 0;font-size:12px;color:#0a0a0a80;">Reply directly to ${escapeHtml(email)} to follow up.</p>
     </div>
-    <p style="text-align:center;font-size:11px;color:#0a0a0a66;margin-top:16px;letter-spacing:0.12em;text-transform:uppercase;">Sent from yaranarabia.ai · book a demo form</p>
+    <p style="text-align:center;font-size:11px;color:#0a0a0a66;margin-top:16px;letter-spacing:0.12em;text-transform:uppercase;">Sent from nidah.ai · book a demo form</p>
   </div>
 </body></html>`;
 

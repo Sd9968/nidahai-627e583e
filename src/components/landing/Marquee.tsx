@@ -10,7 +10,7 @@ export function Marquee() {
   const prefersReducedMotion = useReducedMotion();
 
   const words = [
-    "Yaran Arabia.ai",
+    "NidahAI",
     t("fs.1.t"),
     "•",
     t("fs.2.t"),

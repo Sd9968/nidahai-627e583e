@@ -28,7 +28,7 @@ const en: Dict = {
   "hero.title.b": "Scheduling,",
   "hero.title.c": "24/7.",
   "hero.subtitle":
-    "Yaran Arabia.ai answers calls, understands your customers, and books, reschedules, or cancels appointments — anytime, in English or Arabic.",
+    "NidahAI answers calls, understands your customers, and books, reschedules, or cancels appointments — anytime, in English or Arabic.",
   "hero.pill.available": "24/7 Available",
   "hero.pill.latency": "Under 500ms Latency",
   "hero.pill.languages": "English & العربية",
@@ -59,7 +59,7 @@ const en: Dict = {
   "how.1.t": "Customer Calls",
   "how.1.d": "A customer dials your number — anytime, any day.",
   "how.2.t": "AI Voice Agent Answers",
-  "how.2.d": "Yaran Arabia.ai greets and understands them naturally.",
+  "how.2.d": "NidahAI greets and understands them naturally.",
   "how.3.t": "Appointment Handled",
   "how.3.d": "Booked, modified, rescheduled, or cancelled in the call.",
   "how.4.t": "Notification Sent",
@@ -90,7 +90,7 @@ const en: Dict = {
   "bi.title.b": "Arabic",
   "bi.title.c": "conversations.",
   "bi.subtitle":
-    "Yaran Arabia.ai can speak with customers naturally in English and Arabic. More languages can be added as your business grows.",
+    "NidahAI can speak with customers naturally in English and Arabic. More languages can be added as your business grows.",
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
@@ -116,7 +116,7 @@ const en: Dict = {
   "cta.title.a": "Ready to stop missing",
   "cta.title.b": "customer calls?",
   "cta.subtitle":
-    "Let Yaran Arabia.ai handle appointment scheduling while your team focuses on the work that matters.",
+    "Let NidahAI handle appointment scheduling while your team focuses on the work that matters.",
   "cta.book": "Book a Demo",
   "cta.contact": "Contact Us",
 
@@ -177,7 +177,7 @@ const ar: Dict = {
   "hero.title.b": "بالذكاء الاصطناعي،",
   "hero.title.c": "على مدار الساعة.",
   "hero.subtitle":
-    "يردّ Yaran Arabia.ai على المكالمات، ويفهم عملاءك، ويحجز أو يعدّل أو يلغي المواعيد في أي وقت، بالإنجليزية أو العربية.",
+    "يردّ NidahAI على المكالمات، ويفهم عملاءك، ويحجز أو يعدّل أو يلغي المواعيد في أي وقت، بالإنجليزية أو العربية.",
   "hero.pill.available": "متاح ٢٤/٧",
   "hero.pill.latency": "زمن استجابة أقل من ٥٠٠ مللي ثانية",
   "hero.pill.languages": "English & العربية",
@@ -205,7 +205,7 @@ const ar: Dict = {
   "how.1.t": "يتصل العميل",
   "how.1.d": "يتصل العميل برقمك في أي وقت وأي يوم.",
   "how.2.t": "يرد الوكيل الصوتي",
-  "how.2.d": "يرحب Yaran Arabia.ai بالعميل ويفهمه بشكل طبيعي.",
+  "how.2.d": "يرحب NidahAI بالعميل ويفهمه بشكل طبيعي.",
   "how.3.t": "يُعالج الموعد",
   "how.3.d": "يُحجز أو يُعدّل أو يُعاد جدولته أو يُلغى أثناء المكالمة.",
   "how.4.t": "إرسال الإشعار",
@@ -234,7 +234,7 @@ const ar: Dict = {
   "bi.title.b": "العربية",
   "bi.title.c": "والإنجليزية.",
   "bi.subtitle":
-    "يتحدث Yaran Arabia.ai مع العملاء بطلاقة بالعربية والإنجليزية. يمكن إضافة المزيد من اللغات مع نمو أعمالك.",
+    "يتحدث NidahAI مع العملاء بطلاقة بالعربية والإنجليزية. يمكن إضافة المزيد من اللغات مع نمو أعمالك.",
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
@@ -258,7 +258,7 @@ const ar: Dict = {
   "cta.title.a": "هل أنت مستعد لإيقاف تفويت",
   "cta.title.b": "مكالمات العملاء؟",
   "cta.subtitle":
-    "دع Yaran Arabia.ai يتولى جدولة المواعيد بينما يركّز فريقك على الأعمال الأهم.",
+    "دع NidahAI يتولى جدولة المواعيد بينما يركّز فريقك على الأعمال الأهم.",
   "cta.book": "احجز عرضاً تجريبياً",
   "cta.contact": "تواصل معنا",
 
