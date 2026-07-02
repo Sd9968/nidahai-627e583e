@@ -5,7 +5,7 @@ import { FeatureStrip } from "@/components/landing/FeatureStrip";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Benefits } from "@/components/landing/Benefits";
 import { Bilingual } from "@/components/landing/Bilingual";
-import { UseCases } from "@/components/landing/UseCases";
+
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
 import { Marquee } from "@/components/landing/Marquee";
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
       {
         property: "og:description",
         content:
-          "Never miss a customer call. AI voice agent for appointment scheduling — English & Arabic, under 500ms latency.",
+          "Never miss a customer call. AI voice agent for appointment scheduling — Arabic & English, 24/7.",
       },
     ],
   }),
@@ -42,7 +42,7 @@ function Index() {
         <ScrollReveal intensity="medium"><Benefits /></ScrollReveal>
         <Marquee />
         <ScrollReveal intensity="strong"><Bilingual /></ScrollReveal>
-        <UseCases />
+        
         <ScrollReveal intensity="strong"><FinalCta /></ScrollReveal>
       </main>
       <Footer />

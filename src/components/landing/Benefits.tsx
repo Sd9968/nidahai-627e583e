@@ -6,7 +6,6 @@ export function Benefits() {
   const bullets = [t("ben.b1"), t("ben.b2"), t("ben.b3"), t("ben.b4"), t("ben.b5"), t("ben.b6")];
   const metrics = [
     { value: t("ben.m1.v"), label: t("ben.m1.l") },
-    { value: t("ben.m2.v"), label: t("ben.m2.l") },
     { value: t("ben.m3.v"), label: t("ben.m3.l") },
     { value: t("ben.m4.v"), label: t("ben.m4.l") },
   ];
@@ -33,7 +32,7 @@ export function Benefits() {
           </ul>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {metrics.map((m) => (
             <div
               key={m.label}
