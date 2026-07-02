@@ -82,10 +82,10 @@ const en: Dict = {
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
   // Coming Soon
-  "coming.ar.eyebrow": "Product Launch",
+  "coming.ar.eyebrow": "إطلاق المنتج",
   "coming.ar.title": "قريباً",
   "coming.ar.subtitle":
-    "NidahAI is being built to handle your calls and appointments 24/7. Be the first to experience it.",
+    "يتم بناء NidahAI لإدارة مكالماتك ومواعيدك على مدار الساعة. كن من أوائل من يجربه.",
   "coming.en.eyebrow": "Launching Soon",
   "coming.en.title.a": "Launching",
   "coming.en.title.b": "Soon",
