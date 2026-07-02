@@ -22,7 +22,6 @@ const en: Dict = {
   "hero.subtitle":
     "NidahAI answers calls, understands your customers, and books, reschedules, or cancels appointments — anytime, in English or Arabic.",
   "hero.pill.available": "24/7 Available",
-  "hero.pill.latency": "Under 500ms Latency",
   "hero.pill.languages": "English & العربية",
   "hero.pill.notify": "Instant Phone Notifications",
   "hero.cta.demo": "See It In Action",
@@ -37,8 +36,6 @@ const en: Dict = {
   // Feature strip
   "fs.1.t": "24/7 Availability",
   "fs.1.d": "Always on, never misses a call.",
-  "fs.2.t": "Under 500ms Latency",
-  "fs.2.d": "Conversations that feel human.",
   "fs.3.t": "Smart Scheduling",
   "fs.3.d": "Book, modify, reschedule, cancel.",
   "fs.4.t": "Instant Notifications",

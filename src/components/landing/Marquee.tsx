@@ -13,8 +13,6 @@ export function Marquee() {
     "NidahAI",
     t("fs.1.t"),
     "•",
-    t("fs.2.t"),
-    "•",
     t("fs.3.t"),
     "•",
     t("fs.4.t"),
