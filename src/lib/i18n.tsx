@@ -28,7 +28,7 @@ const en: Dict = {
   "hero.title.b": "Scheduling,",
   "hero.title.c": "24/7.",
   "hero.subtitle":
-    "Yaran Arabia.ai answers calls, understands your customers, and books, reschedules, or cancels appointments — anytime, in English or Arabic.".
+    "NidahAI answers calls, understands your customers, and books, reschedules, or cancels appointments — anytime, in English or Arabic.",
   "hero.pill.available": "24/7 Available",
   "hero.pill.latency": "Under 500ms Latency",
   "hero.pill.languages": "English & العربية",
