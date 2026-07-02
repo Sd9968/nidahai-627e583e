@@ -5,6 +5,7 @@ import { FeatureStrip } from "@/components/landing/FeatureStrip";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Benefits } from "@/components/landing/Benefits";
 import { Bilingual } from "@/components/landing/Bilingual";
+import { ComingSoon } from "@/components/landing/ComingSoon";
 
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
@@ -42,7 +43,7 @@ function Index() {
         <ScrollReveal intensity="medium"><Benefits /></ScrollReveal>
         <Marquee />
         <ScrollReveal intensity="strong"><Bilingual /></ScrollReveal>
-        
+        <ScrollReveal intensity="medium"><ComingSoon /></ScrollReveal>
         <ScrollReveal intensity="strong"><FinalCta /></ScrollReveal>
       </main>
       <Footer />

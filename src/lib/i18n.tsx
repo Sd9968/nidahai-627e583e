@@ -81,6 +81,18 @@ const en: Dict = {
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
+  // Coming Soon
+  "coming.ar.eyebrow": "Product Launch",
+  "coming.ar.title": "قريباً",
+  "coming.ar.subtitle":
+    "NidahAI is being built to handle your calls and appointments 24/7. Be the first to experience it.",
+  "coming.en.eyebrow": "Launching Soon",
+  "coming.en.title.a": "Launching",
+  "coming.en.title.b": "Soon",
+  "coming.en.subtitle":
+    "NidahAI is an AI voice agent that will answer calls, book appointments, and notify your team — in English and Arabic.",
+  "coming.cta": "Get early access",
+
   // Final CTA
   "cta.title.a": "Ready to stop missing",
   "cta.title.b": "customer calls?",
