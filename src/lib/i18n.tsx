@@ -214,6 +214,19 @@ const ar: Dict = {
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
 
+  // Coming Soon
+  "coming.ar.eyebrow": "إطلاق المنتج",
+  "coming.ar.title": "قريباً",
+  "coming.ar.subtitle":
+    "يتم بناء NidahAI لإدارة مكالماتك ومواعيدك على مدار الساعة. كن من أوائل من يجربه.",
+  "coming.en.eyebrow": "Launching Soon",
+  "coming.en.title.a": "Launching",
+  "coming.en.title.b": "Soon",
+  "coming.en.subtitle":
+    "NidahAI هو وكيل صوتي بالذكاء الاصطناعي سيرد على المكالمات، ويحجز المواعيد، ويُخطّر فريقك — بالإنجليزية والعربية.",
+  "coming.cta": "احصل على وصول مبكر",
+
+  // Final CTA
   "cta.title.a": "هل أنت مستعد لإيقاف تفويت",
   "cta.title.b": "مكالمات العملاء؟",
   "cta.subtitle": "دع NidahAI يتولى جدولة المواعيد بينما يركّز فريقك على الأعمال الأهم.",
