@@ -17,7 +17,6 @@ export function Navbar() {
     { href: "#features", label: t("nav.features") },
     { href: "#how", label: t("nav.how") },
     { href: "#benefits", label: t("nav.benefits") },
-    { href: "#pricing", label: t("nav.pricing") },
     { href: "#contact", label: t("nav.contact") },
   ];
 
