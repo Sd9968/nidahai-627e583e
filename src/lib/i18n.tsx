@@ -1,12 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export type Locale = "en" | "ar";
 
@@ -23,7 +15,7 @@ const en: Dict = {
   "nav.cta": "Book a Demo",
 
   // Hero
-  "hero.badge": "AI Voice Agent for Appointments",
+  "hero.badge": "AI Voice Agent for HealthCare Operations",
   "hero.title.a": "AI Voice",
   "hero.title.b": "Scheduling,",
   "hero.title.c": "24/7.",
@@ -115,8 +107,7 @@ const en: Dict = {
   // Final CTA
   "cta.title.a": "Ready to stop missing",
   "cta.title.b": "customer calls?",
-  "cta.subtitle":
-    "Let NidahAI handle appointment scheduling while your team focuses on the work that matters.",
+  "cta.subtitle": "Let NidahAI handle appointment scheduling while your team focuses on the work that matters.",
   "cta.book": "Book a Demo",
   "cta.contact": "Contact Us",
 
@@ -233,8 +224,7 @@ const ar: Dict = {
   "bi.title.a": "مصمم لمحادثات",
   "bi.title.b": "العربية",
   "bi.title.c": "والإنجليزية.",
-  "bi.subtitle":
-    "يتحدث NidahAI مع العملاء بطلاقة بالعربية والإنجليزية. يمكن إضافة المزيد من اللغات مع نمو أعمالك.",
+  "bi.subtitle": "يتحدث NidahAI مع العملاء بطلاقة بالعربية والإنجليزية. يمكن إضافة المزيد من اللغات مع نمو أعمالك.",
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
@@ -257,8 +247,7 @@ const ar: Dict = {
 
   "cta.title.a": "هل أنت مستعد لإيقاف تفويت",
   "cta.title.b": "مكالمات العملاء؟",
-  "cta.subtitle":
-    "دع NidahAI يتولى جدولة المواعيد بينما يركّز فريقك على الأعمال الأهم.",
+  "cta.subtitle": "دع NidahAI يتولى جدولة المواعيد بينما يركّز فريقك على الأعمال الأهم.",
   "cta.book": "احجز عرضاً تجريبياً",
   "cta.contact": "تواصل معنا",
 
