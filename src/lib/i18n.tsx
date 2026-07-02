@@ -66,8 +66,6 @@ const en: Dict = {
   "ben.b6": "Customize the agent for your business workflow",
   "ben.m1.v": "24/7",
   "ben.m1.l": "Always Available",
-  "ben.m2.v": "<500ms",
-  "ben.m2.l": "Ultra-Low Latency",
   "ben.m3.v": "100%",
   "ben.m3.l": "Scheduling Workflow Coverage",
   "ben.m4.v": "∞",
@@ -75,31 +73,13 @@ const en: Dict = {
 
   // Bilingual
   "bi.eyebrow": "Bilingual by design",
-  "bi.title.a": "Built for English &",
+  "bi.title.a": "Built for",
   "bi.title.b": "Arabic",
-  "bi.title.c": "conversations.",
+  "bi.title.c": "& English conversations.",
   "bi.subtitle":
-    "NidahAI can speak with customers naturally in English and Arabic. More languages can be added as your business grows.",
+    "NidahAI speaks with customers naturally in Arabic and English. More languages can be added as your business grows.",
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
-
-  // Use cases
-  "uc.eyebrow": "Use cases",
-  "uc.title.a": "Made for any business",
-  "uc.title.b": "that books by phone.",
-  "uc.cta": "Don't see yours? Talk to us",
-  "uc.1.t": "Clinics",
-  "uc.1.d": "Book patient visits, send reminders, and free your front desk for in-person care.",
-  "uc.2.t": "Salons",
-  "uc.2.d": "Let clients book or change appointments any time without interrupting service.",
-  "uc.3.t": "Dental Offices",
-  "uc.3.d": "Handle check-ups, cleanings, and rescheduling without phone-tag.",
-  "uc.4.t": "Consulting",
-  "uc.4.d": "Qualify callers and put discovery calls straight on your calendar.",
-  "uc.5.t": "Home Services",
-  "uc.5.d": "Take service requests and dispatch slots while your team is on the job.",
-  "uc.6.t": "Small Businesses",
-  "uc.6.d": "A 24/7 receptionist that scales with your bookings, not your headcount.",
 
   // Final CTA
   "cta.title.a": "Ready to stop missing",
