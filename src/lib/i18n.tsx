@@ -22,7 +22,6 @@ const en: Dict = {
   "hero.subtitle":
     "NidahAI answers calls, understands your customers, and books, reschedules, or cancels appointments — anytime, in English or Arabic.",
   "hero.pill.available": "24/7 Available",
-  "hero.pill.latency": "Under 500ms Latency",
   "hero.pill.languages": "English & العربية",
   "hero.pill.notify": "Instant Phone Notifications",
   "hero.cta.demo": "See It In Action",
@@ -37,8 +36,6 @@ const en: Dict = {
   // Feature strip
   "fs.1.t": "24/7 Availability",
   "fs.1.d": "Always on, never misses a call.",
-  "fs.2.t": "Under 500ms Latency",
-  "fs.2.d": "Conversations that feel human.",
   "fs.3.t": "Smart Scheduling",
   "fs.3.d": "Book, modify, reschedule, cancel.",
   "fs.4.t": "Instant Notifications",
@@ -69,8 +66,6 @@ const en: Dict = {
   "ben.b6": "Customize the agent for your business workflow",
   "ben.m1.v": "24/7",
   "ben.m1.l": "Always Available",
-  "ben.m2.v": "<500ms",
-  "ben.m2.l": "Ultra-Low Latency",
   "ben.m3.v": "100%",
   "ben.m3.l": "Scheduling Workflow Coverage",
   "ben.m4.v": "∞",
@@ -78,31 +73,13 @@ const en: Dict = {
 
   // Bilingual
   "bi.eyebrow": "Bilingual by design",
-  "bi.title.a": "Built for English &",
+  "bi.title.a": "Built for",
   "bi.title.b": "Arabic",
-  "bi.title.c": "conversations.",
+  "bi.title.c": "& English conversations.",
   "bi.subtitle":
-    "NidahAI can speak with customers naturally in English and Arabic. More languages can be added as your business grows.",
+    "NidahAI speaks with customers naturally in Arabic and English. More languages can be added as your business grows.",
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
-
-  // Use cases
-  "uc.eyebrow": "Use cases",
-  "uc.title.a": "Made for any business",
-  "uc.title.b": "that books by phone.",
-  "uc.cta": "Don't see yours? Talk to us",
-  "uc.1.t": "Clinics",
-  "uc.1.d": "Book patient visits, send reminders, and free your front desk for in-person care.",
-  "uc.2.t": "Salons",
-  "uc.2.d": "Let clients book or change appointments any time without interrupting service.",
-  "uc.3.t": "Dental Offices",
-  "uc.3.d": "Handle check-ups, cleanings, and rescheduling without phone-tag.",
-  "uc.4.t": "Consulting",
-  "uc.4.d": "Qualify callers and put discovery calls straight on your calendar.",
-  "uc.5.t": "Home Services",
-  "uc.5.d": "Take service requests and dispatch slots while your team is on the job.",
-  "uc.6.t": "Small Businesses",
-  "uc.6.d": "A 24/7 receptionist that scales with your bookings, not your headcount.",
 
   // Final CTA
   "cta.title.a": "Ready to stop missing",
@@ -170,7 +147,7 @@ const ar: Dict = {
   "hero.subtitle":
     "يردّ NidahAI على المكالمات، ويفهم عملاءك، ويحجز أو يعدّل أو يلغي المواعيد في أي وقت، بالإنجليزية أو العربية.",
   "hero.pill.available": "متاح ٢٤/٧",
-  "hero.pill.latency": "زمن استجابة أقل من ٥٠٠ مللي ثانية",
+  
   "hero.pill.languages": "English & العربية",
   "hero.pill.notify": "إشعارات فورية عبر الهاتف",
   "hero.cta.demo": "شاهدها أثناء العمل",
@@ -183,8 +160,6 @@ const ar: Dict = {
 
   "fs.1.t": "متاح على مدار الساعة",
   "fs.1.d": "دائماً يعمل، لا يفوّت أي مكالمة.",
-  "fs.2.t": "استجابة فورية",
-  "fs.2.d": "محادثات بإحساس بشري طبيعي.",
   "fs.3.t": "جدولة ذكية",
   "fs.3.d": "حجز، تعديل، إعادة جدولة، إلغاء.",
   "fs.4.t": "إشعارات فورية",
@@ -213,8 +188,6 @@ const ar: Dict = {
   "ben.b6": "تخصيص الوكيل ليناسب سير عمل شركتك",
   "ben.m1.v": "٢٤/٧",
   "ben.m1.l": "متاح دائماً",
-  "ben.m2.v": "<٥٠٠م.ث",
-  "ben.m2.l": "زمن استجابة فائق",
   "ben.m3.v": "١٠٠٪",
   "ben.m3.l": "تغطية كاملة لسير الجدولة",
   "ben.m4.v": "∞",
@@ -228,22 +201,6 @@ const ar: Dict = {
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
 
-  "uc.eyebrow": "حالات الاستخدام",
-  "uc.title.a": "مصمم لأي عمل",
-  "uc.title.b": "يعتمد على الحجز الهاتفي.",
-  "uc.cta": "لا ترى مجالك؟ تحدث معنا",
-  "uc.1.t": "العيادات",
-  "uc.1.d": "حجز زيارات المرضى وإرسال التذكيرات وتفريغ موظفي الاستقبال للعناية المباشرة.",
-  "uc.2.t": "الصالونات",
-  "uc.2.d": "اسمح للعملاء بالحجز أو التغيير في أي وقت دون مقاطعة الخدمة.",
-  "uc.3.t": "عيادات الأسنان",
-  "uc.3.d": "إدارة الفحوصات والتنظيف وإعادة الجدولة دون عناء.",
-  "uc.4.t": "الاستشارات",
-  "uc.4.d": "تأهيل المتصلين وحجز مكالمات اكتشاف مباشرةً في تقويمك.",
-  "uc.5.t": "الخدمات المنزلية",
-  "uc.5.d": "استقبال الطلبات وحجز المواعيد بينما يعمل فريقك في الميدان.",
-  "uc.6.t": "الأعمال الصغيرة",
-  "uc.6.d": "موظف استقبال على مدار الساعة يتوسع مع حجوزاتك.",
 
   "cta.title.a": "هل أنت مستعد لإيقاف تفويت",
   "cta.title.b": "مكالمات العملاء؟",

@@ -1,18 +1,28 @@
-Rebrand the site from **Yaran Arabia.ai** to **NidahAI** across all visible copy and metadata.
+## Changes
 
-### Files to update
+**1. Remove the Use Cases section**
+- Delete `src/components/landing/UseCases.tsx`
+- Remove its import and `<UseCases />` (with surrounding `ScrollReveal`) from `src/routes/index.tsx`
+- Remove `uc.*` keys from both `en` and `ar` dictionaries in `src/lib/i18n.tsx`
 
-1. **`src/components/landing/Logo.tsx`** — change wordmark from "Yaran Arabia" + ".ai" to "Nidah" + "AI".
-2. **`src/components/landing/PhoneMockup.tsx`** — change screen label from "Yaran Arabia.ai" to "NidahAI".
-3. **`src/components/landing/FinalCta.tsx`** — update email domain from `hello@yaranarabia.ai` to `hello@nidah.ai`.
-4. **`src/components/landing/Footer.tsx`** — update copyright line from "Yaran Arabia.ai" to "NidahAI".
-5. **`src/components/landing/Marquee.tsx`** — update the brand keyword from "Yaran Arabia.ai" to "NidahAI".
-6. **`src/lib/i18n.tsx`** — update all EN and AR translation strings containing "Yaran Arabia.ai" to "NidahAI".
-7. **`src/routes/__root.tsx`** — update `<title>`, meta description, author, `og:title`, `og:description`, `twitter:title`, and `twitter:description` tags.
-8. **`src/routes/index.tsx`** — update `<title>` and `og:title` / `og:description` meta tags.
-9. **`src/routes/api/public/book-demo.ts`** — update `FROM_EMAIL` display name, email body branding, and footer domain reference from "Yaran Arabia.ai" / `yaranarabia.ai` to "NidahAI" / `nidah.ai`.
-10. **`.lovable/plan.md`** — update the creative brief header and all mentions of the old brand name.
+**2. Put Arabic first, highlight Arabic (Bilingual section)**
+- In `src/components/landing/Bilingual.tsx`, swap card order so the Arabic card renders first, English second
+- Update heading translations so "Arabic" is the highlighted (orange `text-pop`) word and comes before "English":
+  - EN: "BUILT FOR **ARABIC** & ENGLISH CONVERSATIONS."
+  - AR: mirror equivalent with العربية highlighted first
+- Update keys `bi.title.a/b/c` in both locales accordingly
 
-### Not included (unless requested)
-- Internal localStorage keys (`kabsa-theme`, `kabsa-locale`) — these are invisible to users and can stay as-is or be updated for consistency.
-- Any actual domain / DNS / email setup — only the hardcoded strings in code will change.
+**3. Remove latency claims (we don't know the number)**
+Remove every "<500ms" / "Under 500ms Latency" / "Ultra-Low Latency" reference:
+- `src/lib/i18n.tsx`: drop `hero.pill.latency`, `fs.2.*`, `ben.m2.*` (or replace with a non-numeric equivalent — see question below)
+- `src/components/landing/Hero.tsx`: remove the latency pill
+- `src/components/landing/FeatureStrip.tsx`: remove the latency feature (grid becomes 3 items) — or replace
+- `src/components/landing/Benefits.tsx`: remove the `<500ms` metric card — or replace
+
+## Question before I build
+
+For the two spots where latency was a stat/feature tile (FeatureStrip and Benefits metrics), do you want me to:
+- **(a) Just remove them** (FeatureStrip becomes 3 tiles, Benefits metric grid becomes 3 cards), or
+- **(b) Replace with a non-numeric equivalent** like "Natural, real-time conversation" / "Human-like Response"?
+
+I'll default to **(a) remove** unless you say otherwise.
