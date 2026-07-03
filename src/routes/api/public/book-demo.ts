@@ -117,22 +117,64 @@ export const Route = createFileRoute("/api/public/book-demo")({
         const text =
           rows.map(([k, v]) => `${k}: ${v}`).join("\n") + `\n\nMessage:\n${message}\n`;
 
-        try {
-          const resp = await fetch(`${GATEWAY_URL}/emails`, {
+        const confirmationHtml = `
+<!doctype html>
+<html><body style="margin:0;padding:0;background:#f5f4f1;font-family:-apple-system,Segoe UI,Inter,Arial,sans-serif;color:#0a0a0a;">
+  <div style="max-width:560px;margin:0 auto;padding:32px 24px;">
+    <div style="background:#ffffff;border:1px solid rgba(10,10,10,0.08);border-radius:20px;padding:32px;">
+      <p style="margin:0;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#0a0a0a99;">NidahAI</p>
+      <h1 style="margin:8px 0 20px;font-size:26px;line-height:1.1;font-weight:900;text-transform:uppercase;">
+        Thanks, ${escapeHtml(name.split(" ")[0] || name)} — <span style="color:#FF6A1A">request received</span>
+      </h1>
+      <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">We got your demo request and our team will reach out shortly to schedule a time that works for you.</p>
+      <p style="margin:0 0 20px;font-size:15px;line-height:1.6;">Here's a copy of what you sent:</p>
+      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+        ${rows
+          .map(
+            ([k, v]) => `
+          <tr>
+            <td style="padding:10px 0;border-bottom:1px solid rgba(10,10,10,0.06);color:#0a0a0a99;width:42%;">${escapeHtml(k)}</td>
+            <td style="padding:10px 0;border-bottom:1px solid rgba(10,10,10,0.06);color:#0a0a0a;">${escapeHtml(v)}</td>
+          </tr>`
+          )
+          .join("")}
+      </table>
+      <div style="margin-top:20px;">
+        <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#0a0a0a99;">Your message</p>
+        <div style="white-space:pre-wrap;font-size:14px;line-height:1.55;color:#0a0a0a;background:#f5f4f1;border-radius:12px;padding:14px 16px;">${escapeHtml(message)}</div>
+      </div>
+      <p style="margin:24px 0 0;font-size:13px;color:#0a0a0a99;">Need to add anything? Just reply to this email.</p>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#0a0a0a66;margin-top:16px;letter-spacing:0.12em;text-transform:uppercase;">NidahAI · Arabic-first AI voice agent</p>
+  </div>
+</body></html>`;
+
+        const confirmationText =
+          `Hi ${name.split(" ")[0] || name},\n\n` +
+          `Thanks for requesting a demo of NidahAI. Our team will be in touch shortly to schedule a time.\n\n` +
+          `Here's a copy of what you sent:\n` +
+          rows.map(([k, v]) => `${k}: ${v}`).join("\n") +
+          `\n\nMessage:\n${message}\n\n— NidahAI`;
+
+        const sendEmail = (payload: Record<string, unknown>) =>
+          fetch(`${GATEWAY_URL}/emails`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${lovableKey}`,
               "X-Connection-Api-Key": resendKey,
             },
-            body: JSON.stringify({
-              from: FROM_EMAIL,
-              to: [TO_EMAIL],
-              reply_to: email,
-              subject: `New demo request — ${name}${company ? ` (${company})` : ""}`,
-              html,
-              text,
-            }),
+            body: JSON.stringify(payload),
+          });
+
+        try {
+          const resp = await sendEmail({
+            from: FROM_EMAIL,
+            to: [TO_EMAIL],
+            reply_to: email,
+            subject: `New demo request — ${name}${company ? ` (${company})` : ""}`,
+            html,
+            text,
           });
 
           if (!resp.ok) {
@@ -142,6 +184,24 @@ export const Route = createFileRoute("/api/public/book-demo")({
               status: 502,
               headers: { "Content-Type": "application/json" },
             });
+          }
+
+          // Best-effort confirmation to the requester (may be skipped in Resend test mode).
+          try {
+            const confirmResp = await sendEmail({
+              from: FROM_EMAIL,
+              to: [email],
+              reply_to: TO_EMAIL,
+              subject: `We got your demo request — NidahAI`,
+              html: confirmationHtml,
+              text: confirmationText,
+            });
+            if (!confirmResp.ok) {
+              const cErr = await confirmResp.text().catch(() => "");
+              console.warn("Confirmation email skipped", confirmResp.status, cErr);
+            }
+          } catch (cErr) {
+            console.warn("Confirmation email exception", cErr);
           }
 
           return new Response(JSON.stringify({ ok: true }), {
@@ -155,6 +215,7 @@ export const Route = createFileRoute("/api/public/book-demo")({
             headers: { "Content-Type": "application/json" },
           });
         }
+
       },
     },
   },
