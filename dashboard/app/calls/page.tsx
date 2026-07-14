@@ -4,84 +4,102 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
+import { CrmShell, StatusBadge } from "@/components/CrmShell";
 
 type Call = {
   id: string;
-  twilio_call_sid: string | null;
+  started_at: string;
+  ended_at: string | null;
   language: string | null;
   outcome: string | null;
-  consent_recorded: boolean | null;
-  started_at: string;
+  recording_s3_key: string | null;
   ai_summary: string | null;
+  twilio_call_sid: string | null;
 };
 
 export default function CallsPage() {
-  const [calls, setCalls] = useState<Call[]>([]);
+  const [items, setItems] = useState<Call[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data, error: qError } = await supabase
-        .from("calls")
-        .select(
-          "id,twilio_call_sid,language,outcome,consent_recorded,started_at,ai_summary"
-        )
-        .order("started_at", { ascending: false })
-        .limit(50);
-      if (qError) setError(qError.message);
-      else setCalls((data as Call[]) || []);
+  async function load() {
+    const supabase = createClient();
+    const { data, error: qError } = await supabase
+      .from("calls")
+      .select(
+        "id,started_at,ended_at,language,outcome,recording_s3_key,ai_summary,twilio_call_sid"
+      )
+      .order("started_at", { ascending: false })
+      .limit(100);
+    if (qError) setError(qError.message);
+    else {
+      setItems((data as Call[]) || []);
+      setError(null);
     }
+  }
+
+  useEffect(() => {
     load();
+    const supabase = createClient();
+    const channel = supabase
+      .channel("crm-calls")
+      .on("postgres_changes", { event: "*", schema: "public", table: "calls" }, () => load())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (
-    <main className="min-h-screen px-6 py-8 max-w-5xl mx-auto">
-      <header className="flex items-end justify-between gap-4">
-        <div>
-          <Link href="/" className="font-display text-3xl text-oasis-700">
-            NidahAI
-          </Link>
-          <h1 className="mt-1 text-xl text-sand-900">Call log</h1>
-        </div>
-        <Link href="/" className="text-sm text-oasis-600 hover:underline">
-          ← Pending queue
-        </Link>
-      </header>
-
+    <CrmShell title="Calls" subtitle="Inbound voice sessions, outcomes, and recordings">
       {error && (
-        <p className="mt-6 text-sm text-red-700 bg-red-50 rounded-md px-3 py-2">
-          {error}
-        </p>
+        <p className="mb-4 text-sm text-red-700 bg-red-50 rounded-md px-3 py-2">{error}</p>
       )}
 
-      <section className="mt-10 space-y-2">
-        {calls.length === 0 && !error && (
-          <p className="text-sand-800/60 text-sm py-12 text-center border border-dashed border-sand-200 rounded-xl">
-            No calls yet.
+      <section className="space-y-2">
+        {items.length === 0 && !error && (
+          <p className="rounded-xl border border-dashed border-sand-200 px-4 py-12 text-center text-sm text-sand-800/50">
+            No calls yet. After the bot logs sessions, they appear here with transcripts and
+            recordings.
           </p>
         )}
-        {calls.map((c) => (
-          <article
+        {items.map((c) => (
+          <Link
             key={c.id}
-            className="rounded-xl border border-sand-200/80 bg-white/70 px-5 py-4"
+            href={`/calls/${c.id}`}
+            className="block rounded-xl border border-sand-200/80 bg-white/70 px-5 py-4 hover:border-oasis-500/40 transition"
           >
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm">
-              <span className="text-sand-900 font-medium">
-                {format(new Date(c.started_at), "d MMM yyyy HH:mm")}
-              </span>
-              <span className="text-sand-800/70">{c.language || "—"}</span>
-              <span className="text-oasis-700">{c.outcome || "in_progress"}</span>
-              {c.consent_recorded && (
-                <span className="text-sand-800/50">consent ✓</span>
-              )}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="font-medium text-sand-900">
+                  {format(new Date(c.started_at), "d MMM yyyy · HH:mm")}
+                  {c.language ? (
+                    <span className="font-normal text-sand-800/55">
+                      {" "}
+                      · {c.language.toUpperCase()}
+                    </span>
+                  ) : null}
+                </p>
+                <p className="mt-1 text-sm text-sand-800/70 line-clamp-2">
+                  {c.ai_summary || "Open for transcript and recording"}
+                </p>
+                {c.twilio_call_sid && (
+                  <p className="mt-1 text-xs text-sand-800/40 truncate max-w-md">
+                    {c.twilio_call_sid}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-3 shrink-0">
+                {c.recording_s3_key && (
+                  <span className="text-xs text-oasis-600 border border-oasis-500/30 rounded-full px-2 py-0.5">
+                    Recording
+                  </span>
+                )}
+                <StatusBadge status={c.outcome || "in_progress"} />
+              </div>
             </div>
-            {c.ai_summary && (
-              <p className="mt-2 text-sm text-sand-800/80">{c.ai_summary}</p>
-            )}
-          </article>
+          </Link>
         ))}
       </section>
-    </main>
+    </CrmShell>
   );
 }

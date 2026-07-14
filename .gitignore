@@ -34,3 +34,5 @@ logs/
 supabase/.temp/
 .supabase_db_password
 .supabase_admin_id
+dashboard/tsconfig.tsbuildinfo
+*.tsbuildinfo
