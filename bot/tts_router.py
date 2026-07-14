@@ -17,7 +17,7 @@ from loguru import logger
 from pipecat.audio.utils import create_stream_resampler
 from pipecat.frames.frames import ErrorFrame, Frame, TTSAudioRawFrame
 from pipecat.services.settings import TTSSettings
-from pipecat.services.tts_service import TTSService
+from pipecat.services.tts_service import TTSService, TextAggregationMode
 
 _ARABIC_CHAR = re.compile(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]")
 _SEGMENT = re.compile(
@@ -64,11 +64,18 @@ def split_by_language(text: str) -> list[tuple[str, str]]:
 class BilingualTTSService(TTSService):
     """Arabic → Munsit (Polly Hala fallback); English → Polly Joanna."""
 
-    def __init__(self, *, sample_rate: int = 8000, **kwargs):
+    def __init__(
+        self,
+        *,
+        sample_rate: int = 8000,
+        text_aggregation_mode: TextAggregationMode = TextAggregationMode.SENTENCE,
+        **kwargs,
+    ):
         super().__init__(
             sample_rate=sample_rate,
             push_start_frame=True,
             push_stop_frames=True,
+            text_aggregation_mode=text_aggregation_mode,
             settings=TTSSettings(model=None, voice=None, language=None),
             **kwargs,
         )
@@ -80,6 +87,8 @@ class BilingualTTSService(TTSService):
         self._polly_voice_ar = os.getenv("POLLY_VOICE_AR", "Hala")
         self._polly_engine = os.getenv("POLLY_ENGINE", "neural")
         self._munsit_key = os.getenv("MUNSIT_API_KEY")
+        # For lowest latency on phone, prefer Polly for AR too (set TTS_AR_PROVIDER=polly)
+        self._tts_ar = os.getenv("TTS_AR_PROVIDER", "munsit").lower().strip()
         self._munsit_voice = os.getenv("MUNSIT_VOICE_ID", "ar-hijazi-female-2")
         self._munsit_model = os.getenv("MUNSIT_TTS_MODEL", "faseeh-v1-preview")
         self._munsit_base = os.getenv("MUNSIT_TTS_BASE_URL", "https://api.munsit.com/api/v1")
@@ -88,11 +97,12 @@ class BilingualTTSService(TTSService):
         # Separate resamplers — SOXR streams cannot change input rate mid-life
         self._resampler_polly = create_stream_resampler()
         self._resampler_munsit = create_stream_resampler()
-        self._munsit_ok = bool(self._munsit_key)
+        self._munsit_ok = bool(self._munsit_key) and self._tts_ar != "polly"
 
         logger.info(
             f"TTS routing: EN→Polly/{self._polly_voice_en}, "
-            f"AR→{'Munsit' if self._munsit_ok else f'Polly/{self._polly_voice_ar}'}"
+            f"AR→{'Munsit' if self._munsit_ok else f'Polly/{self._polly_voice_ar}'} "
+            f"(agg={text_aggregation_mode})"
         )
 
     async def _http_session(self) -> aiohttp.ClientSession:
@@ -178,8 +188,9 @@ class BilingualTTSService(TTSService):
                     if not chunk:
                         continue
                     buf.extend(chunk)
+                    # Emit ASAP — was 3200; lower = faster first audio
                     aligned = len(buf) & ~1
-                    if aligned < 3200:  # buffer a bit before first resample
+                    if aligned < 640:
                         continue
                     raw = bytes(buf[:aligned])
                     del buf[:aligned]
@@ -226,5 +237,10 @@ class BilingualTTSService(TTSService):
                     yield frame
 
 
-def build_tts() -> BilingualTTSService:
-    return BilingualTTSService(sample_rate=8000)
+def build_tts(
+    text_aggregation_mode: TextAggregationMode = TextAggregationMode.SENTENCE,
+) -> BilingualTTSService:
+    return BilingualTTSService(
+        sample_rate=8000,
+        text_aggregation_mode=text_aggregation_mode,
+    )
