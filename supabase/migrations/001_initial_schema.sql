@@ -176,10 +176,17 @@ alter table audit_log enable row level security;
 alter table prayer_times enable row level security;
 
 -- Helper: staff clinic_id from JWT claim or staff_users
+-- SECURITY DEFINER is REQUIRED: this function reads staff_users, and the RLS
+-- policies on staff_users (and every other table) call this function. Without
+-- security definer the read re-triggers those policies → infinite recursion
+-- ("stack depth limit exceeded"). Running as owner bypasses RLS on the read
+-- and breaks the cycle. set search_path pins resolution for safety.
 create or replace function public.staff_clinic_id()
 returns uuid
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select clinic_id from staff_users where auth_user_id = auth.uid() limit 1;
 $$;
