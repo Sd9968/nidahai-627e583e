@@ -1,10 +1,11 @@
 """WhatsApp booking confirmations via Twilio + inbound reply handling.
 
 Flow (see bot.py /whatsapp route and tools.book_appointment):
-  1. After the AI books, we WhatsApp the patient their details and ask them to
-     reply YES to confirm or send a corrected name.
-  2. Twilio posts their reply to /whatsapp on this server. We update Supabase
-     (appointment status or patient name), which the CRM reflects via realtime.
+  1. After the AI books, we WhatsApp the patient — on the number they called from
+     — their appointment details, Booking ID and Patient ID.
+  2. Twilio posts their replies to /whatsapp on this server. An LLM assistant
+     (see _ai_reply) answers them and can cancel or correct the name via tools,
+     writing to Supabase, which the CRM reflects via realtime.
 
 Uses the service-role Supabase client (get_supabase) so writes bypass RLS.
 """
@@ -13,7 +14,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-import re
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
@@ -22,42 +22,6 @@ from loguru import logger
 from tools import get_supabase
 
 CLINIC_TZ = os.getenv("CLINIC_TZ", "Asia/Riyadh")
-
-_YES = re.compile(r"^\s*(y|yes|yep|yeah|confirm|confirmed|ok|okay|نعم|تمام|تم|اي|ايه)\s*$", re.I)
-_NO = re.compile(r"^\s*(n|no|nope|cancel|لا|الغاء|إلغاء)\s*$", re.I)
-# A plausible name: 1–4 words, letters/spaces (Latin or Arabic), no digits/?/URLs.
-_NAME_LIKE = re.compile(r"^[A-Za-z؀-ۿ][A-Za-z؀-ۿ .'-]{1,60}$")
-
-# Greetings / filler that should NOT be treated as a name correction.
-_STOPWORDS = {
-    "hi", "hii", "hey", "hello", "hola", "yo", "hiya", "sup", "test", "testing",
-    "thanks", "thank you", "thankyou", "thx", "hmm", "hmmm", "good morning",
-    "good evening", "good afternoon", "salam", "salaam", "assalamualaikum",
-    "who is this", "what", "why", "how", "help",
-}
-# Prefixes people put before their name — stripped before saving. Longest first.
-_NAME_PREFIXES = sorted(
-    [
-        "my name is", "the correct name is", "correct name is", "the name is",
-        "name is", "change the name to", "change name to", "update the name to",
-        "update name to", "please change it to", "please change to", "change it to",
-        "it should be", "this is", "i am", "i'm", "its", "it's", "name",
-    ],
-    key=len,
-    reverse=True,
-)
-
-
-_GREETING_RE = re.compile(
-    r"^\s*(hi+|hey+|hello+|hola|menu|help|start|options?|salam|salaam|"
-    r"assalam[ou]?[ -]?alaikum|good\s*(morning|evening|afternoon)|"
-    r"مرحبا|السلام عليكم|مساعدة|قائمة|ابدأ)\s*[!.?]*\s*$",
-    re.I,
-)
-_STATUS_RE = re.compile(
-    r"^\s*(status|my appointment|appointment|details|when.*appointment|موعدي|حالة)\s*[!.?]*\s*$",
-    re.I,
-)
 
 
 def _fallback_menu(appts: list) -> str:
@@ -76,28 +40,6 @@ def _fallback_menu(appts: list) -> str:
         )
     lines += ["", "To cancel, tell me the Booking ID. To fix a name, send the corrected name."]
     return "\n".join(lines)
-
-
-def _extract_name(text: str) -> str | None:
-    """Pull a real name out of a reply, or return None if it isn't one."""
-    low = " ".join((text or "").strip().split())  # collapse whitespace
-    if not low:
-        return None
-    ll = low.lower()
-    for p in _NAME_PREFIXES:
-        if ll == p or ll.startswith(p + " ") or ll.startswith(p + ":"):
-            low = low[len(p):].strip(" :،,.-")
-            ll = low.lower()
-            break
-    if not low or ll in _STOPWORDS:
-        return None
-    if "?" in low or "http" in ll:
-        return None
-    if not _NAME_LIKE.match(low):
-        return None
-    if len(low.split()) > 4:  # too long to be a name
-        return None
-    return low[:80]
 
 
 def _norm_phone(raw: str | None) -> str | None:

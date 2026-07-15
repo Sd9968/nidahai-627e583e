@@ -36,3 +36,6 @@ supabase/.temp/
 .supabase_admin_id
 dashboard/tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# Graphify build output
+graphify-out/

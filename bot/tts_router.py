@@ -105,6 +105,16 @@ class BilingualTTSService(TTSService):
             f"(agg={text_aggregation_mode})"
         )
 
+    def can_generate_metrics(self) -> bool:
+        """Enable TTFB/usage metrics for this service.
+
+        FrameProcessor.can_generate_metrics() defaults to False, so without this
+        override every start/stop_ttfb_metrics() call below is silently dropped and
+        TTS never appears in the latency numbers (STT and LLM do, because the AWS
+        services override it).
+        """
+        return True
+
     async def _http_session(self) -> aiohttp.ClientSession:
         if self._http is None or self._http.closed:
             self._http = aiohttp.ClientSession()
