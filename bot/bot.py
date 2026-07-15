@@ -34,7 +34,7 @@ from pipecat.processors.aggregators.llm_response_universal import (
 from pipecat.runner.types import RunnerArguments
 from pipecat.runner.utils import create_transport
 from pipecat.services.tts_service import TextAggregationMode
-from pipecat.transports.base_transport import BaseTransport
+from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
 
 from call_logger import CallSession, CallTurnProbe
@@ -154,8 +154,10 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     ai_probe = CallTurnProbe(call_session, mode="ai")
 
     # Built per call so the date, time and time-of-day greeting are current.
+    # default_lang is what STT is listening in — the prompt and greeting must
+    # use the same language or the bot invites speech it cannot recognise.
     messages: list[dict[str, Any]] = [
-        {"role": "system", "content": build_system_prompt()},
+        {"role": "system", "content": build_system_prompt(language=default_lang)},
     ]
     context = LLMContext(messages=messages, tools=tools)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
@@ -191,9 +193,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         await call_session.start()
-        # One bilingual, time-aware line: greet, name the clinic, disclose
+        # One short line in the STT's language: greet, name the clinic, disclose
         # recording, invite the caller to talk. No language menu.
-        await task.queue_frames([TTSSpeakFrame(text=build_greeting())])
+        await task.queue_frames([TTSSpeakFrame(text=build_greeting(language=default_lang))])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
@@ -243,7 +245,8 @@ async def bot(runner_args: RunnerArguments):
             audio_out_enabled=True,
             vad_analyzer=vad,
         ),
-        "webrtc": lambda: FastAPIWebsocketParams(
+        # SmallWebRTC playground needs TransportParams (not FastAPIWebsocketParams).
+        "webrtc": lambda: TransportParams(
             audio_in_enabled=True,
             audio_out_enabled=True,
             vad_analyzer=vad,
