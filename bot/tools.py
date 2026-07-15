@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import re
 from datetime import datetime, timezone
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -18,6 +19,31 @@ _supabase = None
 # must anchor naive datetimes to this tz before storing or they are treated as
 # UTC and the appointment shifts by the offset (was booking 3 hours late).
 CLINIC_TZ = os.getenv("CLINIC_TZ", "Asia/Riyadh")
+
+
+def clean_phone(raw: str | None) -> str | None:
+    """Normalize a spoken/typed phone number toward E.164.
+
+    Callers say numbers loosely and the model passes them through verbatim
+    ("+91 9347086545", "0934-708 6545"). Stored unnormalized, they never match a
+    lookup and Twilio rejects them ("not a valid phone number"), so strip every
+    separator and keep a single leading '+'.
+    """
+    if not raw:
+        return None
+    s = re.sub(r"[^\d+]", "", str(raw))
+    if not s:
+        return None
+    if s.startswith("00"):
+        s = "+" + s[2:]
+    s = "+" + s.lstrip("+").replace("+", "") if s.startswith("+") else s
+    return s or None
+
+
+def phone_tail(raw: str | None, n: int = 9) -> str:
+    """Last n digits — the part that's stable across +91 / 0 / local spellings."""
+    digits = re.sub(r"\D", "", str(raw or ""))
+    return digits[-n:] if len(digits) >= n else digits
 
 
 def _normalize_scheduled_at(value: str | None) -> str | None:
@@ -96,9 +122,16 @@ def register_tools(
         if patient_ref:
             q = q.eq("ref_code", patient_ref)
         else:
-            q = q.eq("phone_primary", phone)
+            # Match on the last digits, not the exact string: the caller may say
+            # "9347086545", "+91 9347086545" or "0934 708 6545" for the number
+            # stored as "+919347086545". An exact match misses all but one.
+            tail = phone_tail(phone)
+            if not tail:
+                await params.result_callback({"found": False, "phone": phone or None})
+                return
+            q = q.ilike("phone_primary", f"%{tail}")
         q = _clinic_filter(q, clinic_id)
-        res = q.limit(1).execute()
+        res = q.order("created_at", desc=True).limit(1).execute()
         if res.data:
             await params.result_callback({"found": True, "patient": res.data[0]})
         else:
@@ -199,12 +232,17 @@ def register_tools(
                 )
                 return
 
+        # Prefer the number they called from; fall back to what they told us.
+        # Always normalize: an unnormalized number is unusable for WhatsApp and
+        # never matches a later lookup.
+        patient_phone = clean_phone(caller_number) or clean_phone(args.get("patient_phone"))
+
         patient_id = args.get("patient_id")
         if not patient_id:
             insert = {
                 "clinic_id": clinic_id or None,
                 "name": args.get("patient_name") or "Unknown",
-                "phone_primary": args.get("patient_phone"),
+                "phone_primary": patient_phone,
             }
             created = sb.table("patients").insert(insert).execute()
             patient_id = created.data[0]["id"] if created.data else None
@@ -267,7 +305,7 @@ def register_tools(
             recipient = caller_number
             if not recipient:
                 recipient = await _a.to_thread(resolve_caller_number, None, call_sid)
-            recipient = recipient or args.get("patient_phone")
+            recipient = clean_phone(recipient) or patient_phone
             # Key the patient record to the number they called from so WhatsApp
             # replies (which arrive from that number) match this exact patient.
             if recipient and str(recipient).startswith("+") and patient_id:
@@ -379,7 +417,12 @@ def register_tools(
             found = pq.execute().data
             patient_id = found[0]["id"] if found else None
         if not patient_id and args.get("phone"):
-            pq = sb.table("patients").select("id").eq("phone_primary", args["phone"]).limit(1)
+            pq = (
+                sb.table("patients")
+                .select("id")
+                .ilike("phone_primary", f"%{phone_tail(args['phone'])}")
+                .limit(1)
+            )
             pq = _clinic_filter(pq, clinic_id)
             found = pq.execute().data
             patient_id = found[0]["id"] if found else None

@@ -20,7 +20,7 @@ from zoneinfo import ZoneInfo
 from loguru import logger
 
 from instructions import CLINIC_NAME_EN
-from tools import get_supabase
+from tools import clean_phone, get_supabase, phone_tail
 
 CLINIC_TZ = os.getenv("CLINIC_TZ", "Asia/Riyadh")
 
@@ -43,9 +43,14 @@ def _fallback_menu(appts: list) -> str:
 
 
 def _norm_phone(raw: str | None) -> str | None:
+    """Strip the whatsapp: prefix and normalize to E.164.
+
+    Twilio rejects anything with separators ("+91 9347086545" -> HTTP 400 'not a
+    valid phone number'), so this must clean, not just trim.
+    """
     if not raw:
         return None
-    return raw.replace("whatsapp:", "").strip()
+    return clean_phone(raw.replace("whatsapp:", ""))
 
 
 def _now_iso() -> str:
@@ -398,7 +403,7 @@ async def handle_inbound(from_number: str | None, body: str | None) -> str:
         return (
             sb.table("patients")
             .select("id,name,ref_code")
-            .eq("phone_primary", phone)
+            .ilike("phone_primary", f"%{phone_tail(phone)}")
             .order("created_at")
             .execute()
         )
