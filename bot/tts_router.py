@@ -56,7 +56,14 @@ def split_by_language(text: str) -> list[tuple[str, str]]:
             prev_lang, prev = segments[-1]
             segments[-1] = (prev_lang, f"{prev} {chunk}")
             continue
-        segments.append((lang, chunk))
+        # Merge consecutive same-language runs. Without this, a bilingual
+        # greeting becomes 3 sequential Arabic TTS round-trips (~1s each on
+        # Munsit) before English starts — the main source of ~4s open latency.
+        if segments and segments[-1][0] == lang:
+            prev_lang, prev = segments[-1]
+            segments[-1] = (prev_lang, f"{prev} {chunk}")
+        else:
+            segments.append((lang, chunk))
 
     return segments or [("en", text)]
 
@@ -93,6 +100,8 @@ class BilingualTTSService(TTSService):
         self._munsit_model = os.getenv("MUNSIT_TTS_MODEL", "faseeh-v1-preview")
         self._munsit_base = os.getenv("MUNSIT_TTS_BASE_URL", "https://api.munsit.com/api/v1")
         self._session = aiobotocore.session.get_session()
+        self._polly_client = None
+        self._polly_cm = None
         self._http: aiohttp.ClientSession | None = None
         # Separate resamplers — SOXR streams cannot change input rate mid-life
         self._resampler_polly = create_stream_resampler()
@@ -123,11 +132,28 @@ class BilingualTTSService(TTSService):
     async def cleanup(self):
         if self._http and not self._http.closed:
             await self._http.close()
+        if self._polly_cm is not None:
+            await self._polly_cm.__aexit__(None, None, None)
+            self._polly_cm = None
+            self._polly_client = None
         await super().cleanup()
+
+    async def _get_polly(self):
+        """Reuse one Polly client — create_client per utterance added ~50–60ms."""
+        if self._polly_client is None:
+            self._polly_cm = self._session.create_client(
+                "polly",
+                region_name=self._region,
+                aws_access_key_id=self._access_key,
+                aws_secret_access_key=self._secret_key,
+            )
+            self._polly_client = await self._polly_cm.__aenter__()
+        return self._polly_client
 
     async def _chunk_pcm(self, pcm: bytes, context_id: str) -> AsyncGenerator[Frame, None]:
         rate = self.sample_rate or self._out_rate or 8000
-        chunk_size = max(int(rate * 0.5 * 2), 320)  # ~0.5s of 16-bit mono
+        # Smaller chunks so first audio reaches the transport sooner.
+        chunk_size = max(int(rate * 0.02 * 2), 320)  # ~20ms of 16-bit mono
         for i in range(0, len(pcm), chunk_size):
             chunk = pcm[i : i + chunk_size]
             if chunk:
@@ -146,23 +172,18 @@ class BilingualTTSService(TTSService):
         }
         logger.debug(f"Polly/{voice}: {text[:80]}...")
         try:
-            async with self._session.create_client(
-                "polly",
-                region_name=self._region,
-                aws_access_key_id=self._access_key,
-                aws_secret_access_key=self._secret_key,
-            ) as polly:
-                resp = await polly.synthesize_speech(**params)
-                stream = resp.get("AudioStream")
-                if not stream:
-                    yield ErrorFrame(error="Polly returned no audio stream")
-                    return
-                audio_16k = await stream.read()
-                audio = await self._resampler_polly.resample(audio_16k, 16000, rate)
-                await self.start_tts_usage_metrics(text)
-                await self.stop_ttfb_metrics()
-                async for frame in self._chunk_pcm(audio, context_id):
-                    yield frame
+            polly = await self._get_polly()
+            resp = await polly.synthesize_speech(**params)
+            stream = resp.get("AudioStream")
+            if not stream:
+                yield ErrorFrame(error="Polly returned no audio stream")
+                return
+            audio_16k = await stream.read()
+            audio = await self._resampler_polly.resample(audio_16k, 16000, rate)
+            await self.start_tts_usage_metrics(text)
+            await self.stop_ttfb_metrics()
+            async for frame in self._chunk_pcm(audio, context_id):
+                yield frame
         except Exception as exc:
             logger.error(f"Polly TTS failed: {exc}")
             yield ErrorFrame(error=f"Polly TTS error: {exc}")
