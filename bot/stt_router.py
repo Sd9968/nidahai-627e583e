@@ -1,8 +1,12 @@
-"""STT: a single AWS Transcribe service.
+"""STT: a single AWS Transcribe service, fixed to STT_DEFAULT_LANG for the call.
 
-Language is chosen once by voice at the start of the call (see language_gate.py).
-We start in English so "English" / early speech is heard; the gate only reconnects
-when the caller picks Arabic (reconnects are expensive — avoid them for English).
+There is no spoken language menu any more — the greeting is bilingual and the
+caller just talks (see instructions.build_greeting).
+
+Caveat: Transcribe is monolingual per stream, so a caller who speaks the other
+language is transcribed as gibberish rather than detected. Real bilingual support
+needs Transcribe's IdentifyLanguage (not exposed by pipecat's service) or an STT
+that returns a language code.
 """
 
 from __future__ import annotations

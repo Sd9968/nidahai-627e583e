@@ -38,8 +38,7 @@ from pipecat.transports.base_transport import BaseTransport
 from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
 
 from call_logger import CallSession, CallTurnProbe
-from instructions import LANGUAGE_MENU, PRODUCT, SYSTEM_PROMPT
-from language_gate import CallState, LanguageGate
+from instructions import PRODUCT, build_greeting, build_system_prompt
 from safety import SafetyProcessor
 from stt_router import build_stt
 from tools import register_tools
@@ -139,12 +138,12 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         llm, clinic_id=CLINIC_ID, caller_number=from_number, call_sid=twilio_sid
     )
 
-    # Spoken language pick first; STT stays on default lang unless Arabic is chosen
+    # STT language. There is no spoken language menu any more: the greeting is
+    # bilingual and the caller just talks. Transcribe is monolingual, so this is
+    # the language the call is actually recognised in.
     default_lang = os.getenv("STT_DEFAULT_LANG", "en").lower().strip()
     if default_lang not in ("ar", "en"):
         default_lang = "en"
-    call_state = CallState()
-    language_gate = LanguageGate(state=call_state, stt=stt, initial_lang=default_lang)
 
     call_session = CallSession(
         clinic_id=CLINIC_ID,
@@ -154,17 +153,9 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     user_probe = CallTurnProbe(call_session, mode="user")
     ai_probe = CallTurnProbe(call_session, mode="ai")
 
-    # Ground the model in the real date so "tomorrow" etc. resolve correctly.
-    now = datetime.now(ZoneInfo(os.getenv("CLINIC_TZ", "Asia/Riyadh")))
-    date_context = (
-        "\n\n# Current date and time\n"
-        f"Today is {now:%A, %B %d, %Y} ({now:%Y-%m-%d}) in Riyadh "
-        f"(Asia/Riyadh, UTC+3); local time {now:%H:%M}.\n"
-        f"'today' = {now:%Y-%m-%d}, 'tomorrow' = {(now + timedelta(days=1)):%Y-%m-%d}. "
-        "Always pass tools an absolute YYYY-MM-DD date."
-    )
+    # Built per call so the date, time and time-of-day greeting are current.
     messages: list[dict[str, Any]] = [
-        {"role": "system", "content": SYSTEM_PROMPT + date_context},
+        {"role": "system", "content": build_system_prompt()},
     ]
     context = LLMContext(messages=messages, tools=tools)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
@@ -176,7 +167,6 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         [
             transport.input(),
             stt,
-            language_gate,
             safety,
             user_probe,
             user_aggregator,
@@ -201,14 +191,13 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     @transport.event_handler("on_client_connected")
     async def on_client_connected(transport, client):
         await call_session.start()
-        # Ask caller to say Arabic or English (no keypad). Gate locks STT if needed.
-        await task.queue_frames([TTSSpeakFrame(text=LANGUAGE_MENU)])
+        # One bilingual, time-aware line: greet, name the clinic, disclose
+        # recording, invite the caller to talk. No language menu.
+        await task.queue_frames([TTSSpeakFrame(text=build_greeting())])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):
-        lang = getattr(call_state, "language", None)
-        if lang:
-            call_session.set_language(lang)
+        call_session.set_language(default_lang)
         await call_session.finish()
         await task.cancel()
 

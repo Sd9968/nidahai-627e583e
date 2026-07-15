@@ -19,6 +19,7 @@ from zoneinfo import ZoneInfo
 
 from loguru import logger
 
+from instructions import CLINIC_NAME_EN
 from tools import get_supabase
 
 CLINIC_TZ = os.getenv("CLINIC_TZ", "Asia/Riyadh")
@@ -26,13 +27,12 @@ CLINIC_TZ = os.getenv("CLINIC_TZ", "Asia/Riyadh")
 
 def _fallback_menu(appts: list) -> str:
     """Static fallback used only if the AI assistant is unavailable."""
-    product = os.getenv("PRODUCT_NAME", "NidahAI")
     if not appts:
         return (
-            f"👋 Hello! I'm the {product} clinic assistant. I don't see an upcoming appointment "
+            f"👋 Hello! I'm the {CLINIC_NAME_EN} assistant. I don't see an upcoming appointment "
             "for this number. To book, please call the clinic."
         )
-    lines = [f"👋 Hello! I'm the {product} clinic assistant. Upcoming appointments on this number:", ""]
+    lines = [f"👋 Hello! I'm the {CLINIC_NAME_EN} assistant. Upcoming appointments on this number:", ""]
     for a in appts:
         lines.append(
             f"• {a.get('_patient_name')}: {format_when(a.get('scheduled_at'))} Riyadh with "
@@ -154,7 +154,7 @@ async def send_booking_confirmation(
 
 
 WHATSAPP_SYSTEM = (
-    "You are the NidahAI medical clinic assistant chatting on WhatsApp. Be warm, natural, and concise "
+    f"You are the {CLINIC_NAME_EN} assistant chatting with a patient on WhatsApp. Be warm, natural, and concise "
     "— 1 to 3 short sentences, like a friendly receptionist. "
     "IMPORTANT: one phone number may have appointments for SEVERAL people (for example a son who booked "
     "for his mother and father). The context lists every appointment on this number with the person's "
