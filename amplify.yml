@@ -1,0 +1,24 @@
+# AWS Amplify Hosting build spec for the Next.js CRM (lives in dashboard/).
+# Set these env vars in the Amplify console (App settings → Environment variables):
+#   NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
+#   AWS_REGION, S3_RECORDINGS_BUCKET,
+#   AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY   (for signed recording playback)
+version: 1
+applications:
+  - appRoot: dashboard
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build
+      artifacts:
+        baseDirectory: .next
+        files:
+          - "**/*"
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
