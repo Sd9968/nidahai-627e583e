@@ -39,6 +39,7 @@ from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
 
 from call_logger import CallSession, CallTurnProbe
 from instructions import PRODUCT, build_greeting, build_system_prompt
+from language_gate import CallState, LanguageGate
 from safety import SafetyProcessor
 from stt_router import build_stt
 from tools import register_tools
@@ -138,12 +139,13 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         llm, clinic_id=CLINIC_ID, caller_number=from_number, call_sid=twilio_sid
     )
 
-    # STT language. There is no spoken language menu any more: the greeting is
-    # bilingual and the caller just talks. Transcribe is monolingual, so this is
-    # the language the call is actually recognised in.
+    # STT starts here to hear the language choice, then the gate re-points it at
+    # whatever the caller picks (Transcribe accepts ar-AE at Twilio's 8 kHz).
     default_lang = os.getenv("STT_DEFAULT_LANG", "en").lower().strip()
     if default_lang not in ("ar", "en"):
         default_lang = "en"
+    call_state = CallState()
+    language_gate = LanguageGate(state=call_state, stt=stt, initial_lang=default_lang)
 
     call_session = CallSession(
         clinic_id=CLINIC_ID,
@@ -157,7 +159,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
     # default_lang is what STT is listening in — the prompt and greeting must
     # use the same language or the bot invites speech it cannot recognise.
     messages: list[dict[str, Any]] = [
-        {"role": "system", "content": build_system_prompt(language=default_lang)},
+        {"role": "system", "content": build_system_prompt()},
     ]
     context = LLMContext(messages=messages, tools=tools)
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
@@ -169,6 +171,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         [
             transport.input(),
             stt,
+            language_gate,
             safety,
             user_probe,
             user_aggregator,
@@ -195,7 +198,7 @@ async def run_bot(transport: BaseTransport, runner_args: RunnerArguments):
         await call_session.start()
         # One short line in the STT's language: greet, name the clinic, disclose
         # recording, invite the caller to talk. No language menu.
-        await task.queue_frames([TTSSpeakFrame(text=build_greeting(language=default_lang))])
+        await task.queue_frames([TTSSpeakFrame(text=build_greeting())])
 
     @transport.event_handler("on_client_disconnected")
     async def on_client_disconnected(transport, client):

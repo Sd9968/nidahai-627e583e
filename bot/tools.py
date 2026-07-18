@@ -11,6 +11,8 @@ from zoneinfo import ZoneInfo
 from loguru import logger
 from pipecat.adapters.schemas.function_schema import FunctionSchema
 from pipecat.adapters.schemas.tools_schema import ToolsSchema
+from pipecat.frames.frames import EndTaskFrame, FunctionCallResultProperties, TTSSpeakFrame
+from pipecat.processors.frame_processor import FrameDirection
 from pipecat.services.llm_service import FunctionCallParams
 
 _supabase = None
@@ -174,6 +176,26 @@ def register_tools(
         if specialty:
             dq = dq.ilike("specialty", f"%{specialty}%")
         doctors = dq.eq("active", True).execute().data or []
+
+        # A specialty we don't have must not look like a fully-booked day.
+        # Returning bare empty slots here made the bot tell a caller "no
+        # psychiatrist slots available tomorrow" when there is no psychiatry
+        # department at all. Say so, and hand back what the clinic DOES offer.
+        if specialty and not doctors:
+            aq = _clinic_filter(sb.table("doctors").select("specialty"), clinic_id)
+            offered = sorted(
+                {d["specialty"] for d in (aq.eq("active", True).execute().data or []) if d.get("specialty")}
+            )
+            await params.result_callback(
+                {
+                    "slots": [],
+                    "error": "unknown_specialty",
+                    "requested_specialty": specialty,
+                    "available_specialties": offered,
+                    "note": "This clinic has no such specialty. Tell the caller plainly and offer the listed ones.",
+                }
+            )
+            return
 
         slots: list[dict[str, Any]] = []
         for doc in doctors:
@@ -496,6 +518,24 @@ def register_tools(
             }
         )
 
+    async def end_call(params: FunctionCallParams):
+        """Speak a farewell and hang up.
+
+        Without this the line stays open after goodbye: minutes later the
+        recognizer picks up stray noise ("3"), the bot re-engages, and Twilio +
+        Transcribe keep billing an empty room.
+        """
+        goodbye = ((params.arguments or {}).get("goodbye") or "").strip() or "Goodbye!"
+        logger.info(f"end_call: hanging up after farewell {goodbye!r}")
+        # run_llm=False — the call is over; do not generate another turn.
+        await params.result_callback(
+            {"ok": True}, properties=FunctionCallResultProperties(run_llm=False)
+        )
+        # Farewell flows downstream through TTS; EndTaskFrame then ends the task
+        # gracefully, so the EndFrame drains behind the goodbye audio.
+        await params.llm.push_frame(TTSSpeakFrame(goodbye))
+        await params.llm.push_frame(EndTaskFrame(), FrameDirection.UPSTREAM)
+
     schemas = [
         FunctionSchema(
             name="search_patient",
@@ -617,6 +657,22 @@ def register_tools(
             },
             required=["reason"],
             handler=escalate_to_human,
+        ),
+        FunctionSchema(
+            name="end_call",
+            description=(
+                "Hang up the call. Use when the caller indicates they are finished "
+                "(goodbye, 'that's all', 'nothing else, thank you'). Pass a short "
+                "farewell in the caller's language; it is spoken and the call ends."
+            ),
+            properties={
+                "goodbye": {
+                    "type": "string",
+                    "description": "One short farewell sentence in the caller's language",
+                },
+            },
+            required=["goodbye"],
+            handler=end_call,
         ),
     ]
 

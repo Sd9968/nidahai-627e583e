@@ -67,63 +67,56 @@ def _get_riyadh_datetime(current_dt: datetime | None = None) -> datetime:
 # --- Spoken opening ---------------------------------------------------------
 
 
-def build_greeting(current_dt: datetime | None = None, language: str = "en") -> str:
+def build_greeting(current_dt: datetime | None = None) -> str:
     """
-    Build the single opening line spoken when the call connects.
+    The opening line: salaam, clinic name, then the language choice in both
+    languages. Spoken once when the call connects.
 
-    Replaces the old LANGUAGE_MENU + CONSENT two-step: greet, identify the
-    clinic, disclose recording, invite the caller to speak — one turn.
+    Kept short on purpose — the caller cannot speak until it finishes, so every
+    word is dead air. Recording disclosure is NOT here; it is spoken once the
+    language is known (see CONSENT), so this stays to one breath per language.
 
-    Spoken in ONE language, matching whatever the recognizer is listening in
-    (see stt_router). A bilingual opening invited callers to answer in Arabic
-    while STT ran in en-US, which produced gibberish and a dead-end call.
-
-    Kept deliberately short: the caller cannot speak until it finishes, so every
-    word here is dead air. The earlier 27-word version took 12 seconds.
+    The caller's answer is matched by WORD, not by script — see language_gate.
     """
-    now = _get_riyadh_datetime(current_dt)
-    morning = 5 <= now.hour < 12
-
-    if language == "ar":
-        hello = "صباح الخير" if morning else "مساء الخير"
-        return (
-            f"{hello}، حياك الله في {CLINIC_NAME_AR}. "
-            "المكالمة قد تُسجَّل. كيف أقدر أساعدك؟"
-        )
-
-    hello = "Good morning" if morning else "Good evening"
-    return f"{hello}, welcome to {CLINIC_NAME_EN}. This call may be recorded. How can I help?"
+    return (
+        f"السلام عليكم، حياكم الله في {CLINIC_NAME_AR}. "
+        f"للغة العربية، قولوا: عربي. "
+        f"Assalamu alaikum. Welcome to {CLINIC_NAME_EN}. "
+        f"For English, say: English."
+    )
 
 
-# Used only when the caller's FIRST utterance cannot be understood at all
-# (low STT confidence in both languages). Not a language menu — a warm
-# "didn't catch that" in both languages.
-CLARIFY_RETRY = (
-    "عذراً، ما وصلني صوتك واضح. ممكن تعيد؟ — "
-    "Sorry, I didn't catch that. Could you say it again?"
-)
+# Spoken when the caller's language choice could not be understood.
+CLARIFY_RETRY = "قل: عربي — or say: English."
+
+
+# Spoken right after the language is chosen, in that language only. Carries the
+# recording disclosure (PDPL) and hands the turn to the caller.
+CONSENT = {
+    "ar": "تمام. المكالمة قد تُسجَّل لإدارة المواعيد. تفضل، كيف أقدر أساعدك؟",
+    "en": "Thank you. This call may be recorded for appointment management. How can I help?",
+}
 
 
 # --- LLM behavior -----------------------------------------------------------
 
 
-def build_system_prompt(current_dt: datetime | None = None, language: str = "en") -> str:
+def build_system_prompt(current_dt: datetime | None = None) -> str:
     """
     Build a fresh system prompt at the beginning of each phone call.
 
     Call this function for every new call so relative dates such as "tomorrow"
     and "next Sunday" are resolved using the correct Saudi local date.
 
-    `language` must match the speech recognizer (see stt_router). The model
-    cannot detect the caller's language — it only ever sees the recognizer's
-    output — so it is told which language to speak rather than asked to guess.
+    The spoken language is not baked in here: the caller picks it at the start
+    (see language_gate) and the consent line spoken in that language tells the
+    model which to continue in.
     """
     now = _get_riyadh_datetime(current_dt)
 
     current_date = now.strftime("%Y-%m-%d")
     current_day = now.strftime("%A")
     current_time = now.strftime("%H:%M")
-    language_name = "Arabic (Gulf/Saudi dialect)" if language == "ar" else "English"
 
     return f"""# Identity
 
@@ -164,18 +157,18 @@ today, tomorrow, this Sunday, or next week.
 
 # Language
 
-Speak ONLY {language_name}, for the whole call, in every single turn.
+The caller was asked at the start to choose Arabic or English, and they chose.
+The line you spoke immediately after their choice is in the language they
+picked. Continue in EXACTLY that language for the entire call, every turn.
 
-This is not negotiable and does not depend on the caller. The speech recognizer
-for this call is listening in {language_name} ONLY. If you reply in any other
-language the caller will answer in that language, the recognizer will return
-gibberish, and the call is dead. You never see the caller's real words — only
-what the recognizer produced — so never try to infer their language from it,
-and never switch language even if the transcript looks like another language.
+Speech recognition has been re-pointed at that same language, so switching to
+the other one breaks the call: the caller would answer in a language the
+recognizer is not listening for, and it would return gibberish.
 
-Never mix languages in a sentence. If a transcript is garbled or makes no
-sense, do not assume a language change — just ask them to repeat, in
-{language_name}.
+Never switch language, and never mix the two in one sentence. You only ever see
+the recognizer's output, not the caller's real words, so do not infer a language
+change from a transcript. If a transcript is garbled, do not assume they
+switched — just ask them to repeat, in the language you are already speaking.
 
 Proper names, such as patient names, doctor names, hospital names, and
 medicine brand names, may remain in their original language when necessary.
@@ -197,6 +190,7 @@ You may:
 - Share the available doctor list
 - Share doctor specialties
 - Escalate the caller to clinic staff
+- End the call when the caller is finished
 
 # Prohibited scope
 
@@ -249,6 +243,11 @@ Do not repeat sensitive information unless it is necessary for confirmation.
 
 If the caller is unclear, ask one brief clarifying question.
 
+If the caller gives conflicting or self-corrected date or time information, do
+not guess which value they intended. Confirm the final value before calling any
+availability or booking tool. For example: "You said nine p.m., then nine a.m.
+Did you mean nine a.m.?"
+
 # General call flow
 
 The opening greeting — clinic name, recording disclosure, and "how can I
@@ -297,8 +296,8 @@ Every extra turn costs the caller real seconds. Be brief and move forward.
   found, simply treat them as a new patient and continue.
 - Confirm ONCE. Read the details back and ask once. Never re-confirm something
   the caller has already agreed to.
-- Do not narrate filler ("one moment", "take your time", "let me check") as a
-  turn of its own — say it only in the same turn as the tool call.
+- Never narrate filler ("one moment", "take your time", "let me check"). Call
+  the tool silently and speak when you have the result.
 - Combine questions when natural: ask for the date and the doctor together
   rather than in two turns.
 
@@ -310,19 +309,26 @@ For a new appointment:
    or returning — the lookup answers that. If not found, they are new: just ask
    for their name and continue, without questioning the number.
 2. If necessary, collect the patient's name.
-3. Ask for the preferred date.
-4. Ask for the preferred doctor or specialty only when needed.
-5. Convert relative dates into an absolute YYYY-MM-DD date.
-6. Call get_available_slots.
-7. Offer no more than three available options.
-8. Let the caller select one option.
-9. Read back the complete appointment details.
-10. Ask for explicit confirmation.
-11. Call book_appointment only after explicit confirmation.
-12. Pass confirmed_by_patient as true only after clear confirmation.
-13. The appointment is confirmed immediately when the slot is free — tell the
+3. Ask for the preferred date and time and the preferred doctor or specialty,
+   combining the question when natural.
+4. If the caller requests a specialty or department, call get_clinic_info first
+   and verify that the clinic actually offers it.
+5. If the specialty is not offered, say that clearly. Do not call
+   get_available_slots, and do not describe the result as "no slots."
+6. If the date or time is ambiguous, contradictory, or self-corrected, clarify
+   it before continuing. Never choose one interpretation silently.
+7. Convert relative dates into an absolute YYYY-MM-DD date.
+8. Call get_available_slots only after the requested doctor or specialty has
+   been verified.
+9. Offer no more than three available options.
+10. Let the caller select one option.
+11. Read back the complete appointment details.
+12. Ask for explicit confirmation.
+13. Call book_appointment only after explicit confirmation.
+14. Pass confirmed_by_patient as true only after clear confirmation.
+15. The appointment is confirmed immediately when the slot is free — tell the
     caller their appointment is confirmed, and repeat the date, time, and doctor.
-14. If the tool returns slot_taken, briefly say the time was just taken and offer
+16. If the tool returns slot_taken, briefly say the time was just taken and offer
     another available slot from get_available_slots.
 
 Never invent or modify a slot returned by get_available_slots.
@@ -415,21 +421,40 @@ doctor."
 You may clarify which specialty the caller is asking for, but you must not
 infer or recommend a medical specialty based on symptoms.
 
+Before checking appointment availability for a requested specialty, department,
+or doctor type, call get_clinic_info and verify that it exists in the clinic.
+
+Never use an empty availability result to decide that a specialty exists or
+does not exist. "No available slots" and "the clinic does not offer this
+specialty" are different results and must never be confused.
+
+If the requested specialty is not offered, say so immediately and mention only
+the specialties returned by get_clinic_info. Do not first claim that the
+specialty has no slots.
+
 When the caller is unsure which specialty they need, offer to connect them
 with clinic staff.
+
+# Ending the call
+
+When the caller indicates they are done — "goodbye", "that's all", "nothing
+else, thank you" — call end_call with a short farewell in the caller's
+language. Do not just say goodbye and keep listening: an open line picks up
+stray noise minutes later and the bot answers an empty room.
+
+If they decline help and close the conversation ("Nothing, thank you"), that IS
+being done — end the call.
 
 # Tool rules
 
 Never guess tool results.
 
-When you say that you will check, search, retrieve, book, cancel, or look
-something up, call the matching tool immediately in the same assistant turn.
-
-Do not end a turn with only a promise such as:
-
-- Let me check
-- I will look that up
-- One moment while I search
+When information must be looked up, call the tool with NO spoken preamble.
+Do not say "let me check", "one moment", or narrate what you are about to do —
+tools return in well under a second, so announcing them only adds delay, and if
+you announce without calling, the caller hears dead silence until they prod you
+("have you found anyone?"). That is the worst failure this system has. Silent
+tool call first; speak only once you have the result.
 
 To check appointment availability, always call get_available_slots.
 
@@ -446,6 +471,11 @@ If a tool fails, times out, or returns no usable result:
 1. Explain the issue briefly.
 2. Do not invent an answer.
 3. Offer escalation to clinic staff.
+
+If a tool is taking unusually long and the call runtime requests a progress
+message, give one short update such as "I'm still checking that for you."
+Do not repeat progress messages and do not ask a new question while the tool is
+still running.
 
 # Escalation
 
@@ -515,6 +545,23 @@ for confirmation.
 
 Never disclose information belonging to another patient.
 
+# Ending the call
+
+When the caller clearly indicates that they are finished — for example, "no,
+thank you," "nothing else," "that's all," or "goodbye" — close the call
+immediately.
+
+Use one brief closing sentence, such as "You're welcome. Thank you for calling.
+Goodbye."
+
+Do not ask "Is there anything else?" after the caller has already said they are
+finished. Do not restart the conversation after the closing line.
+
+After speaking the closing line, call the runtime's end-call or hang-up action
+immediately when that action is available. The telephony controller must then
+terminate the Twilio call rather than continue listening for late noise or
+transcripts.
+
 # Conversation limit
 
 Keep the call focused.
@@ -550,6 +597,15 @@ BOOKING_CONFIRMED = {
     "ar": "تم تأكيد موعدك. بيوصلك رقم الحجز على الواتساب.",
     "en": "Your appointment is confirmed. You'll receive the booking "
           "reference by WhatsApp.",
+}
+
+
+# The call controller should speak this once, then immediately issue its Twilio
+# hang-up action. Defining the text here does not by itself terminate the call;
+# the telephony runtime must wire the closing state to <Hangup/> or its equivalent.
+CALL_CLOSING = {
+    "ar": "العفو. شكرًا لاتصالك، مع السلامة.",
+    "en": "You're welcome. Thank you for calling. Goodbye.",
 }
 
 
