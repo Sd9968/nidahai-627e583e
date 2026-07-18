@@ -29,7 +29,16 @@ const en: Dict = {
 
   // Phone mockup
   "phone.incoming": "Incoming call",
+  "phone.oncall": "On call",
   "phone.listening": "Listening...",
+  "phone.connecting": "Connecting...",
+  "phone.ended": "Call ended",
+  "phone.tap": "Tap to call",
+  "phone.callcta": "Call NidahAI now",
+  "phone.hangup": "End call",
+  "phone.dial": "Or dial",
+  "phone.err.mic": "Microphone access is required.",
+  "phone.err.generic": "Couldn't start the call. Please try again.",
   "phone.bubble1": "Hello! How can I help you today?",
   "phone.bubble2": "I'd like to book an appointment.",
 
@@ -166,7 +175,16 @@ const ar: Dict = {
   "hero.cta.book": "احجز عرضاً تجريبياً",
 
   "phone.incoming": "مكالمة واردة",
+  "phone.oncall": "في المكالمة",
   "phone.listening": "يستمع...",
+  "phone.connecting": "جارٍ الاتصال...",
+  "phone.ended": "انتهت المكالمة",
+  "phone.tap": "اضغط للاتصال",
+  "phone.callcta": "اتصل بـ NidahAI الآن",
+  "phone.hangup": "إنهاء المكالمة",
+  "phone.dial": "أو اتصل على",
+  "phone.err.mic": "يلزم السماح باستخدام الميكروفون.",
+  "phone.err.generic": "تعذر بدء المكالمة. حاول مرة أخرى.",
   "phone.bubble1": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
   "phone.bubble2": "أود حجز موعد.",
 
