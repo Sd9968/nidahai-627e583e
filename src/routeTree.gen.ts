@@ -10,11 +10,23 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicTwimlVoiceRouteImport } from './routes/api/public/twiml-voice'
+import { Route as ApiPublicTwilioTokenRouteImport } from './routes/api/public/twilio-token'
 import { Route as ApiPublicBookDemoRouteImport } from './routes/api/public/book-demo'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTwimlVoiceRoute = ApiPublicTwimlVoiceRouteImport.update({
+  id: '/api/public/twiml-voice',
+  path: '/api/public/twiml-voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTwilioTokenRoute = ApiPublicTwilioTokenRouteImport.update({
+  id: '/api/public/twilio-token',
+  path: '/api/public/twilio-token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicBookDemoRoute = ApiPublicBookDemoRouteImport.update({
@@ -26,27 +38,48 @@ const ApiPublicBookDemoRoute = ApiPublicBookDemoRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/book-demo': typeof ApiPublicBookDemoRoute
+  '/api/public/twilio-token': typeof ApiPublicTwilioTokenRoute
+  '/api/public/twiml-voice': typeof ApiPublicTwimlVoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/book-demo': typeof ApiPublicBookDemoRoute
+  '/api/public/twilio-token': typeof ApiPublicTwilioTokenRoute
+  '/api/public/twiml-voice': typeof ApiPublicTwimlVoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/book-demo': typeof ApiPublicBookDemoRoute
+  '/api/public/twilio-token': typeof ApiPublicTwilioTokenRoute
+  '/api/public/twiml-voice': typeof ApiPublicTwimlVoiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/book-demo'
+  fullPaths:
+    | '/'
+    | '/api/public/book-demo'
+    | '/api/public/twilio-token'
+    | '/api/public/twiml-voice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/book-demo'
-  id: '__root__' | '/' | '/api/public/book-demo'
+  to:
+    | '/'
+    | '/api/public/book-demo'
+    | '/api/public/twilio-token'
+    | '/api/public/twiml-voice'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/public/book-demo'
+    | '/api/public/twilio-token'
+    | '/api/public/twiml-voice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicBookDemoRoute: typeof ApiPublicBookDemoRoute
+  ApiPublicTwilioTokenRoute: typeof ApiPublicTwilioTokenRoute
+  ApiPublicTwimlVoiceRoute: typeof ApiPublicTwimlVoiceRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +89,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/twiml-voice': {
+      id: '/api/public/twiml-voice'
+      path: '/api/public/twiml-voice'
+      fullPath: '/api/public/twiml-voice'
+      preLoaderRoute: typeof ApiPublicTwimlVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/twilio-token': {
+      id: '/api/public/twilio-token'
+      path: '/api/public/twilio-token'
+      fullPath: '/api/public/twilio-token'
+      preLoaderRoute: typeof ApiPublicTwilioTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/book-demo': {
@@ -71,7 +118,19 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicBookDemoRoute: ApiPublicBookDemoRoute,
+  ApiPublicTwilioTokenRoute: ApiPublicTwilioTokenRoute,
+  ApiPublicTwimlVoiceRoute: ApiPublicTwimlVoiceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
