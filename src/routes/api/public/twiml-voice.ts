@@ -16,6 +16,18 @@ function escapeXml(s: string) {
     .replace(/'/g, "&apos;");
 }
 
+function getPublicOrigin(request: Request) {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  const requestUrl = new URL(request.url);
+  const host = forwardedHost || request.headers.get("host") || requestUrl.host;
+  const protocol = forwardedProto === "http" || forwardedProto === "https"
+    ? forwardedProto
+    : requestUrl.protocol.replace(":", "");
+
+  return `${protocol}://${host}`;
+}
+
 export const Route = createFileRoute("/api/public/twiml-voice")({
   server: {
     handlers: {
@@ -34,7 +46,7 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
         const dialCallerId = callerId && callerId !== agentNumber
           ? ` callerId="${escapeXml(callerId)}"`
           : "";
-        const statusCallback = `${new URL(request.url).origin}/api/public/twilio-call-status`;
+        const statusCallback = `${getPublicOrigin(request)}/api/public/twilio-call-status`;
         const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial answerOnBridge="true"${dialCallerId}>
