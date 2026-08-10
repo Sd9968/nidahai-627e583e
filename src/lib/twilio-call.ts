@@ -196,9 +196,11 @@ export function useTwilioCall() {
             ? "mic_blocked"
             : name === "SecurityError"
               ? "mic_insecure"
-              : name === "NotSupportedError" || name === "NotFoundError"
-                ? "mic_unsupported"
-                : "start_failed";
+              : name === "NotReadableError" || name === "AbortError"
+                ? "mic_busy"
+                : name === "NotSupportedError" || name === "NotFoundError"
+                  ? "mic_unsupported"
+                  : "start_failed";
         setError(msg);
         setStatus("error");
         cleanup();
