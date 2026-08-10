@@ -20,40 +20,47 @@ const WINDOW_MS = 10 * 60 * 1000;
 
 const issuedTokens = new Map<string, { count: number; resetAt: number }>();
 
-function requestHost(request: Request) {
-  return (
-    request.headers.get("x-forwarded-host") ??
-    request.headers.get("host") ??
-    new URL(request.url).host
-  ).toLowerCase();
-}
+const TRUSTED_HOSTNAMES = new Set([
+  "nidahai.com",
+  "www.nidahai.com",
+  "nidahai.lovable.app",
+  "id-preview--1bcb3be0-0778-4fa6-b098-90d478b0e1e0.lovable.app",
+  "project--1bcb3be0-0778-4fa6-b098-90d478b0e1e0-dev.lovable.app",
+  "1bcb3be0-0778-4fa6-b098-90d478b0e1e0.lovableproject.com",
+]);
 
-function hostOf(value: string | null) {
+function urlOf(value: string | null) {
   if (!value) return null;
   try {
-    return new URL(value).host.toLowerCase();
+    return new URL(value);
   } catch {
     return null;
   }
 }
 
+function isTrustedUrl(url: URL) {
+  const hostname = url.hostname.toLowerCase();
+  return (
+    TRUSTED_HOSTNAMES.has(hostname) ||
+    (import.meta.env.DEV && (hostname === "localhost" || hostname === "127.0.0.1"))
+  );
+}
+
 /** Returns the verified same-origin value, or null when the caller is not us. */
 function verifyOrigin(request: Request): string | null {
-  const host = requestHost(request);
   const originHeader = request.headers.get("origin");
-  const originHost = hostOf(originHeader);
+  const originUrl = urlOf(originHeader);
 
-  if (originHost) {
-    return originHost === host ? originHeader : null;
+  if (originUrl) {
+    return isTrustedUrl(originUrl) ? originUrl.origin : null;
   }
 
-  // Some browsers omit Origin on same-origin requests; fall back to Referer.
-  const refererHost = hostOf(request.headers.get("referer"));
-  if (refererHost && refererHost === host) {
-    const proto =
-      request.headers.get("x-forwarded-proto") ??
-      new URL(request.url).protocol.replace(":", "");
-    return `${proto}://${host}`;
+  // Some browsers omit Origin on same-origin requests; fall back to a trusted
+  // Referer. Do not compare with proxy Host headers: preview traffic is routed
+  // through an internal host that intentionally differs from the public URL.
+  const refererUrl = urlOf(request.headers.get("referer"));
+  if (refererUrl && isTrustedUrl(refererUrl)) {
+    return refererUrl.origin;
   }
 
   return null;
