@@ -58,6 +58,7 @@ export function useTwilioCall() {
   const callRef = useRef<CallLike | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startedAtRef = useRef<number | null>(null);
+  const micStreamRef = useRef<MediaStream | null>(null);
 
   const clearTimer = () => {
     if (timerRef.current) {
@@ -78,6 +79,12 @@ export function useTwilioCall() {
     } catch {
       /* noop */
     }
+    try {
+      micStreamRef.current?.getTracks().forEach((t) => t.stop());
+    } catch {
+      /* noop */
+    }
+    micStreamRef.current = null;
     callRef.current = null;
     deviceRef.current = null;
     clearTimer();
@@ -89,19 +96,25 @@ export function useTwilioCall() {
     // CRITICAL for iOS Safari / mobile Chrome: start getUserMedia in the same
     // synchronous turn as the tap. Any React setState before this call drops
     // the user-gesture flag and the permission prompt never appears.
-    const micPromise =
-      typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia
-        ? navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-            },
-          })
-        : Promise.reject(
-            Object.assign(new Error("Microphone API unavailable"), {
-              name: "NotSupportedError",
-            }),
-          );
+    const canCapture =
+      typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia;
+    // Mobile browsers silently refuse mic access outside a secure context
+    // (http:// or an iframe without allow="microphone") — no prompt is shown.
+    const secure = typeof window === "undefined" || window.isSecureContext !== false;
+
+    const micPromise = !canCapture
+      ? Promise.reject(
+          Object.assign(new Error("Microphone API unavailable"), {
+            name: secure ? "NotSupportedError" : "SecurityError",
+          }),
+        )
+      : navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
 
     void (async () => {
       setError(null);
@@ -110,8 +123,10 @@ export function useTwilioCall() {
       setStatus("connecting");
 
       try {
-        const micStream = await micPromise;
-        micStream.getTracks().forEach((track) => track.stop());
+        // Keep the granted stream alive: releasing it here makes iOS Safari
+        // re-request permission from a non-gesture context, which fails silently.
+        micStreamRef.current = await micPromise;
+
 
         const res = await fetch("/api/public/twilio-token", { method: "POST" });
         if (!res.ok) throw new Error("token_failed");
