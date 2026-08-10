@@ -47,6 +47,8 @@ const en: Dict = {
   "phone.dial": "Or dial",
   "phone.err.mic": "Allow microphone access, then tap Call again. Or dial the number below.",
   "phone.err.mic.unsupported": "This browser can't use the mic. Dial the number below instead.",
+  "phone.err.mic.insecure":
+    "Mic access is blocked here. Open nidahai.com directly in your browser (not in an in-app browser) and tap Call again.",
   "phone.err.generic": "Couldn't start the call. Please try again.",
   "phone.browser": "Call in browser",
   "phone.bubble1": "Hello! How can I help you today?",
