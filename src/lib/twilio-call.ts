@@ -2,6 +2,39 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 export type CallStatus = "idle" | "connecting" | "ringing" | "in-call" | "ended" | "error";
 
+type TwilioDeviceCtor = new (token: string, opts?: Record<string, unknown>) => unknown;
+
+let sdkPromise: Promise<TwilioDeviceCtor> | null = null;
+
+/**
+ * Loads Twilio's prebuilt browser bundle from /vendor.
+ * The npm ESM build breaks in the browser bundle (extends an undefined
+ * EventEmitter), so we use the official self-contained dist file instead.
+ */
+function loadTwilioDevice(): Promise<TwilioDeviceCtor> {
+  const w = window as unknown as { Twilio?: { Device?: TwilioDeviceCtor } };
+  if (w.Twilio?.Device) return Promise.resolve(w.Twilio.Device);
+  if (sdkPromise) return sdkPromise;
+
+  sdkPromise = new Promise<TwilioDeviceCtor>((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "/vendor/twilio-voice.min.js";
+    script.async = true;
+    script.onload = () => {
+      const D = (window as unknown as { Twilio?: { Device?: TwilioDeviceCtor } }).Twilio?.Device;
+      if (D) resolve(D);
+      else reject(new Error("sdk_missing"));
+    };
+    script.onerror = () => {
+      sdkPromise = null;
+      reject(new Error("sdk_load_failed"));
+    };
+    document.head.appendChild(script);
+  });
+
+  return sdkPromise;
+}
+
 type DeviceLike = {
   connect: (opts?: { params?: Record<string, string> }) => Promise<CallLike>;
   destroy: () => void;
@@ -67,7 +100,7 @@ export function useTwilioCall() {
       const { token } = (await res.json()) as { token?: string };
       if (!token) throw new Error("no_token");
 
-      const { Device } = await import("@twilio/voice-sdk");
+      const Device = await loadTwilioDevice();
       const device = new Device(token, {
         logLevel: "silent",
         codecPreferences: ["opus", "pcmu"] as never,
