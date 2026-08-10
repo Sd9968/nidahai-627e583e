@@ -115,6 +115,22 @@ export function useTwilioCall() {
             autoGainControl: true,
           },
         });
+    // Chrome rejects (and shows no prompt) when the processing constraints
+    // can't be satisfied by the selected device. Retry bare audio in that case.
+    const micWithFallback = micPromise.catch((err: unknown) => {
+      const name = err instanceof Error ? err.name : "";
+      if (
+        canCapture &&
+        (name === "OverconstrainedError" ||
+          name === "NotReadableError" ||
+          name === "AbortError" ||
+          name === "TypeError")
+      ) {
+        console.warn("Retrying mic with basic constraints after", name);
+        return navigator.mediaDevices.getUserMedia({ audio: true });
+      }
+      throw err;
+    });
 
     void (async () => {
       setError(null);
@@ -125,7 +141,8 @@ export function useTwilioCall() {
       try {
         // Keep the granted stream alive: releasing it here makes iOS Safari
         // re-request permission from a non-gesture context, which fails silently.
-        micStreamRef.current = await micPromise;
+        micStreamRef.current = await micWithFallback;
+
 
 
         const res = await fetch("/api/public/twilio-token", { method: "POST" });
