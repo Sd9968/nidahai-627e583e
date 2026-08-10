@@ -60,16 +60,63 @@ type TwilioCallError = {
 function describeTwilioError(error: unknown) {
   const twilioError = error as TwilioCallError;
   const providerError = twilioError.originalError;
+  const code = providerError?.code ?? twilioError.code;
+  const message = providerError?.message ?? twilioError.message ?? String(error);
 
-  if (providerError?.code === 13225) {
-    return "13225 Call blocked by Twilio: this destination is blacklisted as a high-risk fraud target. Request a destination review from Twilio Support or use the voice agent's direct SIP/webhook endpoint.";
+  if (code === 13225) {
+    return "13225 Outbound dial blocked by Twilio (blacklist / Trust Hub). Browser calls must Connect to the voice agent stream — not Dial the phone number.";
   }
 
-  if (providerError?.message) {
-    return `${providerError.code ?? twilioError.code ?? ""} ${providerError.message}`.trim();
+  if (code === 31005) {
+    return "31005 Connection hung up by Twilio gateway. Usually means the voice agent webhook/stream is down, or an outbound Dial was blocked. Set PIPECAT_STREAM_URL and keep the Pipecat bot online.";
   }
 
-  return `${twilioError.code ?? ""} ${twilioError.message ?? String(error)}`.trim();
+  return `${code ?? ""} ${message}`.trim();
+}
+
+function summarizeTwiml(body: string) {
+  const stream = /<Stream[^>]*\surl=["']([^"']+)["']/i.exec(body)?.[1];
+  if (stream) {
+    let host = stream;
+    try {
+      host = new URL(stream).host;
+    } catch {
+      /* keep raw */
+    }
+    return { ok: true, detail: `HTTP 200 · Connect/Stream → ${host}`, streamUrl: stream };
+  }
+
+  const redirect = /<Redirect[^>]*>([^<]+)<\/Redirect>/i.exec(body)?.[1]?.trim();
+  if (redirect) {
+    return { ok: true, detail: `HTTP 200 · Redirect → ${redirect}`, streamUrl: null as string | null };
+  }
+
+  const dialNumber = /<Number[^>]*>([^<]+)<\/Number>/i.exec(body)?.[1]?.trim();
+  if (dialNumber) {
+    return {
+      ok: false,
+      detail: `HTTP 200 · Dial ${dialNumber} (blocked path — set PIPECAT_STREAM_URL)`,
+      streamUrl: null as string | null,
+    };
+  }
+
+  if (/<Say/i.test(body)) {
+    return {
+      ok: false,
+      detail: `HTTP 200 · agent not configured — set PIPECAT_STREAM_URL=wss://…/ws`,
+      streamUrl: null as string | null,
+    };
+  }
+
+  if (/<Response/i.test(body)) {
+    return { ok: true, detail: "HTTP 200 · TwiML ok", streamUrl: null as string | null };
+  }
+
+  return {
+    ok: false,
+    detail: `HTTP 200 but no TwiML: ${body.slice(0, 100)}`,
+    streamUrl: null as string | null,
+  };
 }
 
 export type DiagState = "pending" | "ok" | "fail" | "info";
@@ -155,7 +202,12 @@ export function useTwilioCall() {
       }
       const { token } = (await res.json()) as { token?: string };
       if (!token) {
-        pushStep({ id: "token", label: "Voice token (/api/public/twilio-token)", state: "fail", detail: "no token in response" });
+        pushStep({
+          id: "token",
+          label: "Voice token (/api/public/twilio-token)",
+          state: "fail",
+          detail: "no token in response",
+        });
         throw new Error("no_token");
       }
       pushStep({
@@ -166,43 +218,30 @@ export function useTwilioCall() {
       });
 
       // 3. TwiML webhook reachability (what Twilio calls to route the call)
-      pushStep({ id: "webhook", label: "Call webhook (/api/public/twiml-voice)", state: "pending" });
+      pushStep({
+        id: "webhook",
+        label: "Call webhook (/api/public/twiml-voice)",
+        state: "pending",
+      });
       try {
         const hookRes = await fetch("/api/public/twiml-voice", { method: "POST" });
-        const xml = await hookRes.text();
-        const streamUrl = /<Stream[^>]*\surl="([^"]+)"/i.exec(xml)?.[1];
-        const dialTarget = /<Number[^>]*>([^<]*)</i.exec(xml)?.[1]?.trim()
-          || /<Dial[^>]*>([^<]*)</i.exec(xml)?.[1]?.trim();
-        const hasTwiml = /<Response/i.test(xml);
-        let mode = "unknown";
-        if (streamUrl) {
-          let host = streamUrl;
-          try {
-            host = new URL(streamUrl).host;
-          } catch {
-            /* keep raw value */
-          }
-          mode = `web stream → ${host}`;
-        } else if (dialTarget) {
-          mode = `phone dial → ${dialTarget}`;
-        }
+        const body = await hookRes.text();
+        const summary = summarizeTwiml(body);
         pushStep({
           id: "webhook",
           label: "Call webhook (/api/public/twiml-voice)",
-          state: hookRes.ok && hasTwiml ? "ok" : "fail",
-          detail: hookRes.ok
-            ? hasTwiml
-              ? `HTTP 200 · TwiML ok · ${mode}`
-              : `HTTP 200 but no TwiML: ${xml.slice(0, 100)}`
-            : `HTTP ${hookRes.status} ${xml.slice(0, 100)}`,
+          state: hookRes.ok && summary.ok ? "ok" : "fail",
+          detail: hookRes.ok ? summary.detail : `HTTP ${hookRes.status} ${body.slice(0, 100)}`,
         });
         pushStep({
           id: "bot-stream",
           label: "Bot stream",
-          state: streamUrl ? "ok" : "info",
-          detail: streamUrl
-            ? mode
-            : "No media stream configured — falling back to phone dial (blocked destination).",
+          state: summary.streamUrl ? "ok" : summary.ok ? "info" : "fail",
+          detail: summary.streamUrl
+            ? `web stream → ${summary.streamUrl}`
+            : summary.ok
+              ? "Routed via Redirect/webhook (no direct Stream in probe)"
+              : "No media stream configured — set PIPECAT_STREAM_URL in project secrets",
         });
       } catch (e) {
         pushStep({
@@ -241,7 +280,12 @@ export function useTwilioCall() {
 
       call.on("ringing", () => {
         setStatus("ringing");
-        pushStep({ id: "ringing", label: "Twilio ringing agent", state: "info", detail: "waiting for answer" });
+        pushStep({
+          id: "ringing",
+          label: "Twilio ringing agent",
+          state: "info",
+          detail: "waiting for answer",
+        });
       });
       call.on("accept", () => {
         setStatus("in-call");
@@ -260,7 +304,12 @@ export function useTwilioCall() {
       });
       call.on("cancel", () => {
         setStatus("ended");
-        pushStep({ id: "end", label: "Call ended", state: "info", detail: "cancelled before answer" });
+        pushStep({
+          id: "end",
+          label: "Call ended",
+          state: "info",
+          detail: "cancelled before answer",
+        });
         clearTimer();
       });
       call.on("error", (e: unknown) => {
@@ -280,9 +329,7 @@ export function useTwilioCall() {
       const raw = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
       pushStep({ id: "fatal", label: "Startup failed", state: "fail", detail: raw });
       const msg =
-        err instanceof Error && err.name === "NotAllowedError"
-          ? "mic_blocked"
-          : "start_failed";
+        err instanceof Error && err.name === "NotAllowedError" ? "mic_blocked" : "start_failed";
       setError(msg);
       setStatus("error");
       cleanup();
@@ -310,7 +357,9 @@ export function useTwilioCall() {
 }
 
 export function formatDuration(sec: number) {
-  const m = Math.floor(sec / 60).toString().padStart(2, "0");
+  const m = Math.floor(sec / 60)
+    .toString()
+    .padStart(2, "0");
   const s = (sec % 60).toString().padStart(2, "0");
   return `${m}:${s}`;
 }
