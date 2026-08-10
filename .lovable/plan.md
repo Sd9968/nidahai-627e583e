@@ -1,47 +1,38 @@
-## Goal
-Let visitors click the phone mockup and talk to your Twilio-hosted AI voice agent directly in the browser — no dialer, no phone bill for the visitor. On mobile we also offer a "Call instead" fallback that opens the dialer to `+1 620 670 8352`.
+# Web call to the agent (no phone network)
 
-## How it works (technical)
+Today the green call button opens a browser call, then Twilio dials the agent's phone number over PSTN — and that number is blocked by the carrier (error 13225), so the call dies at hangup.
 
-Twilio has no "call a number from the browser" one-liner. The standard path is **Twilio Voice JavaScript SDK (`@twilio/voice-sdk`)**, which needs three server-side pieces:
+Since the agent is Pipecat listening on a Twilio Media Streams WebSocket, the phone number is unnecessary. The browser call can be handed straight to the bot's WebSocket, keeping the whole path inside Twilio.
 
-1. **Access Token endpoint** — mints a short-lived JWT using your Twilio API Key + Secret so the browser can register as a Voice client.
-2. **TwiML endpoint** — Twilio hits this when the browser client dials out; it returns `<Response><Dial><Number>+16206708352</Number></Dial></Response>` to bridge the browser to your AI agent's number.
-3. **TwiML App** — a Twilio-side config object whose "Voice Request URL" points at the TwiML endpoint above. Its SID goes into the access token.
+## What changes
 
-Browser flow: page loads → fetch token → `new Device(token)` → user clicks phone → `device.connect()` → Twilio calls the TwiML URL → bridges to the AI agent → two-way audio in the browser.
+```text
+before:  browser -> Twilio -> <Dial> phone number -> (blocked)
+after:   browser -> Twilio -> <Connect><Stream> -> Pipecat bot
+```
 
-## What I need from you (one-time Twilio setup)
+1. The voice webhook returns a stream connect instruction pointing at the Pipecat WebSocket URL instead of dialing a number.
+2. The WebSocket URL is stored as a project secret (`PIPECAT_STREAM_URL`), so it is never in the page source.
+3. If that secret is missing, the webhook falls back to the existing phone-number dial, so nothing breaks while it is being configured.
+4. The diagnostics panel gains a "Bot stream" line showing which mode was used (stream vs. dial) and the stream host, so a bad URL is visible on the page.
+5. The call-status callback keeps logging provider errors; the blacklist path is simply no longer used.
 
-You'll do this in the Twilio Console; I can't do it for you:
+## What you need to provide
 
-1. **Create an API Key** (Console → Account → API keys & tokens → Create API Key, Standard). Save the **SID** and **Secret** — Secret is shown only once.
-2. **Create a TwiML App** (Console → Voice → TwiML → TwiML Apps → Create). Set the Voice **Request URL** to `https://nidahai.com/api/public/twiml-voice` (POST). Save the **App SID**.
-3. Have your **Account SID** ready.
+The public WebSocket URL of your Pipecat server's Twilio Media Streams endpoint, for example
+`wss://bot.yourdomain.com/ws` — it must be publicly reachable over TLS (`wss://`), not localhost.
+I will request it through the secure secret form.
 
-Then I'll request these as secrets via the secrets form: `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY_SID`, `TWILIO_API_KEY_SECRET`, `TWILIO_TWIML_APP_SID`, `TWILIO_AGENT_NUMBER` (defaults to `+16206708352`).
+Also confirm on the Pipecat side that the transport is the Twilio serializer (Media Streams frames),
+since that is what Twilio will send.
 
-Cost: each browser call is billed to your Twilio account as an outbound call to `+1 620 670 8352` at Twilio's US rate (~$0.014/min) plus the AI agent's own per-minute cost.
+## Technical notes
 
-## Files to add/change
-
-1. **`src/routes/api/public/twilio-token.ts`** — POST returns `{ token }`. Uses `twilio` npm package's `AccessToken` + `VoiceGrant`. 1-hour TTL, random identity.
-2. **`src/routes/api/public/twiml-voice.ts`** — POST returns `text/xml` TwiML that dials `TWILIO_AGENT_NUMBER`. Public endpoint; validate Twilio signature (`X-Twilio-Signature`) using the auth token so randos can't hit it.
-3. **`src/lib/twilio-call.ts`** — thin client hook `useTwilioCall()` that lazy-loads `@twilio/voice-sdk`, fetches the token, manages `Device` lifecycle, exposes `{ status, start, hangup, mute, isMuted }` where `status` is `idle | connecting | ringing | in-call | ended | error`.
-4. **`src/components/landing/PhoneMockup.tsx`** — wire the hook: mic permission on click, animate the "Listening…" pill / waveform only during `in-call`, make the red end button call `hangup()`, mic button toggle mute. Show live call timer instead of the static `00:42`. On mobile (`useIsMobile`), the primary CTA becomes a `tel:+16206708352` link with an inline "Call in browser" secondary option.
-5. **`package.json`** — add `@twilio/voice-sdk` (client) and `twilio` (server, for token signing + signature validation).
-6. **i18n keys** in `src/lib/i18n.tsx` — `phone.tap`, `phone.connecting`, `phone.mic.blocked`, `phone.error`, `phone.hangup`, EN + AR.
-
-## Security & guardrails
-- Token endpoint is public but rate-limited by identity randomness + 1-hour TTL; no PII in the token.
-- TwiML endpoint verifies `X-Twilio-Signature` against `AuthToken` — reject on mismatch (401).
-- `TWILIO_AGENT_NUMBER` lives only server-side; browser never sees the destination.
-- Recommend you enable **Voice Geo Permissions** (allow only the countries you actually serve) in Twilio Console to blunt toll fraud.
-
-## Out of scope for this pass
-- Call recording / transcripts panel in the UI.
-- Queueing / hold music if the agent is busy.
-- Auth-gated calls (anyone on the site can start one — matches the "click phone to call" UX you asked for).
-
-## Ready to build?
-On approval I'll: create the two API routes, add the hook + wire the mockup, install packages, then open the secrets form for the five Twilio values. Once you paste them, the browser-call button goes live.
+- `src/routes/api/public/twiml-voice.ts`: emit
+  `<Response><Connect><Stream url="..."><Parameter name="callSid" .../></Stream></Connect></Response>`
+  when `PIPECAT_STREAM_URL` is set; keep the current `<Dial>` branch as fallback. Read env inside the handler.
+- `<Connect><Stream>` is bidirectional (the bot talks back), unlike `<Start><Stream>`, which is one-way.
+- `src/lib/twilio-call.ts`: the webhook probe already fetches the TwiML; extend the parser to report
+  stream-vs-dial mode into the diagnostics steps.
+- No frontend/token changes needed; the existing browser SDK call and token endpoint stay as they are.
+- Requires a publish for the live domain, since Twilio calls `nidahai.com`.
