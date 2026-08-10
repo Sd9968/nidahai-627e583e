@@ -45,7 +45,10 @@ const en: Dict = {
   "phone.callcta": "Call NidahAI now",
   "phone.hangup": "End call",
   "phone.dial": "Or dial",
-  "phone.err.mic": "Allow microphone access, then tap Call again. Or dial the number below.",
+  "phone.err.mic":
+    "Microphone is blocked. In Chrome, tap the lock/settings icon in the address bar → Site settings → Microphone → Allow, then tap Call again.",
+  "phone.err.mic.busy":
+    "Another app or tab is using your microphone. Close it, then tap Call again.",
   "phone.err.mic.unsupported": "This browser can't use the mic. Dial the number below instead.",
   "phone.err.mic.insecure":
     "Mic access is blocked here. Open nidahai.com directly in your browser (not in an in-app browser) and tap Call again.",
@@ -196,7 +199,9 @@ const ar: Dict = {
   "phone.callcta": "اتصل بـ NidahAI الآن",
   "phone.hangup": "إنهاء المكالمة",
   "phone.dial": "أو اتصل على",
-  "phone.err.mic": "اسمح بالوصول للميكروفون ثم اضغط اتصال مرة أخرى. أو اتصل بالرقم أدناه.",
+  "phone.err.mic":
+    "الميكروفون محجوب. في Chrome اضغط رمز القفل في شريط العنوان ← إعدادات الموقع ← الميكروفون ← السماح، ثم اضغط اتصال.",
+  "phone.err.mic.busy": "تطبيق أو تبويب آخر يستخدم الميكروفون. أغلقه ثم اضغط اتصال مرة أخرى.",
   "phone.err.mic.unsupported": "هذا المتصفح لا يدعم الميكروفون. اتصل بالرقم أدناه.",
   "phone.err.mic.insecure":
     "الوصول للميكروفون محجوب هنا. افتح nidahai.com في المتصفح مباشرة (وليس داخل تطبيق) ثم اضغط اتصال.",
