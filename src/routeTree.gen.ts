@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicBookDemoRouteImport } from './routes/api/public/book-demo'
+import { Route as ApiPublicTwilioCallStatusRouteImport } from './routes/api/public/twilio-call-status'
 import { Route as ApiPublicTwilioTokenRouteImport } from './routes/api/public/twilio-token'
 import { Route as ApiPublicTwimlVoiceRouteImport } from './routes/api/public/twiml-voice'
 
@@ -24,6 +25,12 @@ const ApiPublicBookDemoRoute = ApiPublicBookDemoRouteImport.update({
   path: '/api/public/book-demo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTwilioCallStatusRoute =
+  ApiPublicTwilioCallStatusRouteImport.update({
+    id: '/api/public/twilio-call-status',
+    path: '/api/public/twilio-call-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicTwilioTokenRoute = ApiPublicTwilioTokenRouteImport.update({
   id: '/api/public/twilio-token',
   path: '/api/public/twilio-token',
@@ -38,12 +45,14 @@ const ApiPublicTwimlVoiceRoute = ApiPublicTwimlVoiceRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/public/book-demo': typeof ApiPublicBookDemoRoute
+  '/api/public/twilio-call-status': typeof ApiPublicTwilioCallStatusRoute
   '/api/public/twilio-token': typeof ApiPublicTwilioTokenRoute
   '/api/public/twiml-voice': typeof ApiPublicTwimlVoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/public/book-demo': typeof ApiPublicBookDemoRoute
+  '/api/public/twilio-call-status': typeof ApiPublicTwilioCallStatusRoute
   '/api/public/twilio-token': typeof ApiPublicTwilioTokenRoute
   '/api/public/twiml-voice': typeof ApiPublicTwimlVoiceRoute
 }
@@ -51,6 +60,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/public/book-demo': typeof ApiPublicBookDemoRoute
+  '/api/public/twilio-call-status': typeof ApiPublicTwilioCallStatusRoute
   '/api/public/twilio-token': typeof ApiPublicTwilioTokenRoute
   '/api/public/twiml-voice': typeof ApiPublicTwimlVoiceRoute
 }
@@ -59,18 +69,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/api/public/book-demo'
+    | '/api/public/twilio-call-status'
     | '/api/public/twilio-token'
     | '/api/public/twiml-voice'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/api/public/book-demo'
+    | '/api/public/twilio-call-status'
     | '/api/public/twilio-token'
     | '/api/public/twiml-voice'
   id:
     | '__root__'
     | '/'
     | '/api/public/book-demo'
+    | '/api/public/twilio-call-status'
     | '/api/public/twilio-token'
     | '/api/public/twiml-voice'
   fileRoutesById: FileRoutesById
@@ -78,6 +91,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiPublicBookDemoRoute: typeof ApiPublicBookDemoRoute
+  ApiPublicTwilioCallStatusRoute: typeof ApiPublicTwilioCallStatusRoute
   ApiPublicTwilioTokenRoute: typeof ApiPublicTwilioTokenRoute
   ApiPublicTwimlVoiceRoute: typeof ApiPublicTwimlVoiceRoute
 }
@@ -96,6 +110,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/book-demo'
       fullPath: '/api/public/book-demo'
       preLoaderRoute: typeof ApiPublicBookDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/twilio-call-status': {
+      id: '/api/public/twilio-call-status'
+      path: '/api/public/twilio-call-status'
+      fullPath: '/api/public/twilio-call-status'
+      preLoaderRoute: typeof ApiPublicTwilioCallStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/twilio-token': {
@@ -118,19 +139,10 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiPublicBookDemoRoute: ApiPublicBookDemoRoute,
+  ApiPublicTwilioCallStatusRoute: ApiPublicTwilioCallStatusRoute,
   ApiPublicTwilioTokenRoute: ApiPublicTwilioTokenRoute,
   ApiPublicTwimlVoiceRoute: ApiPublicTwimlVoiceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
