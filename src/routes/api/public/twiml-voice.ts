@@ -21,8 +21,9 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
     handlers: {
       // Twilio issues POST, but GET is handy for quick browser checks.
       GET: async () => xml("<Response><Say>NidahAI voice endpoint is live.</Say></Response>"),
-      POST: async () => {
+      POST: async ({ request }) => {
         const agentNumber = process.env.TWILIO_AGENT_NUMBER;
+        const callerId = process.env.TWILIO_CALLER_ID;
 
         if (!agentNumber) {
           console.error("TwiML: missing agent number");
@@ -30,10 +31,14 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
         }
 
         const dialTarget = escapeXml(agentNumber);
+        const dialCallerId = callerId && callerId !== agentNumber
+          ? ` callerId="${escapeXml(callerId)}"`
+          : "";
+        const statusCallback = `${new URL(request.url).origin}/api/public/twilio-call-status`;
         const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Dial answerOnBridge="true" callerId="${dialTarget}">
-    <Number>${dialTarget}</Number>
+  <Dial answerOnBridge="true"${dialCallerId}>
+    <Number statusCallback="${escapeXml(statusCallback)}" statusCallbackEvent="initiated ringing answered completed" statusCallbackMethod="POST">${dialTarget}</Number>
   </Dial>
 </Response>`;
         return xml(twiml);
