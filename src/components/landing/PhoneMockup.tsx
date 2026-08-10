@@ -2,14 +2,13 @@ import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocale } from "@/lib/i18n";
 import { formatDuration, useTwilioCall } from "@/lib/twilio-call";
-import { CallStatusPanel } from "./CallStatusPanel";
 
 const DEMO_TEL = "+16206708352";
 
 export function PhoneMockup() {
   const { t } = useLocale();
   const isMobile = useIsMobile();
-  const { status, error, isMuted, duration, steps, start, hangup, toggleMute } = useTwilioCall();
+  const { status, error, isMuted, duration, start, hangup, toggleMute } = useTwilioCall();
 
   const isConnecting = status === "connecting" || status === "ringing";
   const isLive = status === "in-call";
@@ -175,8 +174,6 @@ export function PhoneMockup() {
           </p>
         )}
       </div>
-
-      <CallStatusPanel steps={steps} />
 
       <Bubble className="absolute -left-16 sm:-left-28 top-16 float-slow" delay="0s">
         {t("phone.bubble1")}
