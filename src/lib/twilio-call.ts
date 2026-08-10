@@ -177,9 +177,11 @@ export function useTwilioCall() {
         const msg =
           name === "NotAllowedError" || name === "PermissionDeniedError"
             ? "mic_blocked"
-            : name === "NotSupportedError" || name === "NotFoundError"
-              ? "mic_unsupported"
-              : "start_failed";
+            : name === "SecurityError"
+              ? "mic_insecure"
+              : name === "NotSupportedError" || name === "NotFoundError"
+                ? "mic_unsupported"
+                : "start_failed";
         setError(msg);
         setStatus("error");
         cleanup();
