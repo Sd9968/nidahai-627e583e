@@ -34,11 +34,27 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
       // Twilio issues POST, but GET is handy for quick browser checks.
       GET: async () => xml("<Response><Say>NidahAI voice endpoint is live.</Say></Response>"),
       POST: async ({ request }) => {
+        const streamUrl = process.env.PIPECAT_STREAM_URL;
         const agentNumber = process.env.TWILIO_AGENT_NUMBER;
         const callerId = process.env.TWILIO_CALLER_ID;
+        const statusCallback = `${getPublicOrigin(request)}/api/public/twilio-call-status`;
+
+        // Preferred path: hand the browser call straight to the Pipecat bot over
+        // Twilio Media Streams — no PSTN leg, so no carrier blocking.
+        if (streamUrl && /^wss?:\/\//i.test(streamUrl)) {
+          const twiml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Connect>
+    <Stream url="${escapeXml(streamUrl)}">
+      <Parameter name="source" value="web" />
+    </Stream>
+  </Connect>
+</Response>`;
+          return xml(twiml);
+        }
 
         if (!agentNumber) {
-          console.error("TwiML: missing agent number");
+          console.error("TwiML: missing PIPECAT_STREAM_URL and agent number");
           return xml("<Response><Say>Service not configured.</Say></Response>", 500);
         }
 
@@ -46,7 +62,6 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
         const dialCallerId = callerId && callerId !== agentNumber
           ? ` callerId="${escapeXml(callerId)}"`
           : "";
-        const statusCallback = `${getPublicOrigin(request)}/api/public/twilio-call-status`;
         const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial answerOnBridge="true"${dialCallerId}>

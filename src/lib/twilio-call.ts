@@ -170,16 +170,39 @@ export function useTwilioCall() {
       try {
         const hookRes = await fetch("/api/public/twiml-voice", { method: "POST" });
         const xml = await hookRes.text();
-        const hasDial = /<Dial|<Response/i.test(xml);
+        const streamUrl = /<Stream[^>]*\surl="([^"]+)"/i.exec(xml)?.[1];
+        const dialTarget = /<Number[^>]*>([^<]*)</i.exec(xml)?.[1]?.trim()
+          || /<Dial[^>]*>([^<]*)</i.exec(xml)?.[1]?.trim();
+        const hasTwiml = /<Response/i.test(xml);
+        let mode = "unknown";
+        if (streamUrl) {
+          let host = streamUrl;
+          try {
+            host = new URL(streamUrl).host;
+          } catch {
+            /* keep raw value */
+          }
+          mode = `web stream → ${host}`;
+        } else if (dialTarget) {
+          mode = `phone dial → ${dialTarget}`;
+        }
         pushStep({
           id: "webhook",
           label: "Call webhook (/api/public/twiml-voice)",
-          state: hookRes.ok && hasDial ? "ok" : "fail",
+          state: hookRes.ok && hasTwiml ? "ok" : "fail",
           detail: hookRes.ok
-            ? hasDial
-              ? `HTTP 200 · TwiML ok${/<Dial[^>]*>([^<]*)</i.exec(xml)?.[1] ? ` → ${/<Dial[^>]*>([^<]*)</i.exec(xml)![1].trim()}` : ""}`
+            ? hasTwiml
+              ? `HTTP 200 · TwiML ok · ${mode}`
               : `HTTP 200 but no TwiML: ${xml.slice(0, 100)}`
             : `HTTP ${hookRes.status} ${xml.slice(0, 100)}`,
+        });
+        pushStep({
+          id: "bot-stream",
+          label: "Bot stream",
+          state: streamUrl ? "ok" : "info",
+          detail: streamUrl
+            ? mode
+            : "No media stream configured — falling back to phone dial (blocked destination).",
         });
       } catch (e) {
         pushStep({
