@@ -59,9 +59,10 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
         }
 
         const dialTarget = escapeXml(agentNumber);
-        const dialCallerId = callerId && callerId !== agentNumber
-          ? ` callerId="${escapeXml(callerId)}"`
-          : "";
+        // Twilio requires a verified Twilio caller ID when a browser (Client) leg dials out.
+        const effectiveCallerId = callerId || agentNumber;
+        const dialCallerId = ` callerId="${escapeXml(effectiveCallerId)}"`;
+
         const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Dial answerOnBridge="true"${dialCallerId}>
