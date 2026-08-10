@@ -178,166 +178,206 @@ export function useTwilioCall() {
 
   useEffect(() => () => cleanup(), [cleanup]);
 
-  const start = useCallback(async () => {
-    setError(null);
-    setDuration(0);
-    setIsMuted(false);
-    setStatus("connecting");
-    setSteps([]);
+  const start = useCallback(() => {
+    // CRITICAL for iOS Safari / mobile Chrome: start getUserMedia in the same
+    // synchronous turn as the tap. Any React setState before this call drops
+    // the user-gesture flag and the permission prompt never appears.
+    const micPromise =
+      typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia
+        ? navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+            },
+          })
+        : Promise.reject(
+            Object.assign(new Error("Microphone API unavailable"), {
+              name: "NotSupportedError",
+            }),
+          );
 
-    try {
-      // 1. Microphone permission
-      pushStep({ id: "mic", label: "Microphone permission", state: "pending" });
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      pushStep({ id: "mic", label: "Microphone permission", state: "ok", detail: "granted" });
+    void (async () => {
+      setError(null);
+      setDuration(0);
+      setIsMuted(false);
+      setStatus("connecting");
+      setSteps([]);
 
-      // 2. Access token from our server
-      pushStep({ id: "token", label: "Voice token (/api/public/twilio-token)", state: "pending" });
-      const res = await fetch("/api/public/twilio-token", { method: "POST" });
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        pushStep({
-          id: "token",
-          label: "Voice token (/api/public/twilio-token)",
-          state: "fail",
-          detail: `HTTP ${res.status} ${body.slice(0, 120)}`,
-        });
-        throw new Error("token_failed");
-      }
-      const { token } = (await res.json()) as { token?: string };
-      if (!token) {
-        pushStep({
-          id: "token",
-          label: "Voice token (/api/public/twilio-token)",
-          state: "fail",
-          detail: "no token in response",
-        });
-        throw new Error("no_token");
-      }
-      pushStep({
-        id: "token",
-        label: "Voice token (/api/public/twilio-token)",
-        state: "ok",
-        detail: `HTTP 200 · token ${token.length} chars`,
-      });
-
-      // 3. TwiML webhook reachability (what Twilio calls to route the call)
-      pushStep({
-        id: "webhook",
-        label: "Call webhook (/api/public/twiml-voice)",
-        state: "pending",
-      });
       try {
-        const hookRes = await fetch("/api/public/twiml-voice", { method: "POST" });
-        const body = await hookRes.text();
-        const summary = summarizeTwiml(body);
+        // 1. Microphone permission (promise already started above)
+        pushStep({ id: "mic", label: "Microphone permission", state: "pending" });
+        const micStream = await micPromise;
+        // Release the probe stream — Twilio Device will open its own after grant.
+        micStream.getTracks().forEach((track) => track.stop());
+        pushStep({ id: "mic", label: "Microphone permission", state: "ok", detail: "granted" });
+
+        // 2. Access token from our server
+        pushStep({
+          id: "token",
+          label: "Voice token (/api/public/twilio-token)",
+          state: "pending",
+        });
+        const res = await fetch("/api/public/twilio-token", { method: "POST" });
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          pushStep({
+            id: "token",
+            label: "Voice token (/api/public/twilio-token)",
+            state: "fail",
+            detail: `HTTP ${res.status} ${body.slice(0, 120)}`,
+          });
+          throw new Error("token_failed");
+        }
+        const { token } = (await res.json()) as { token?: string };
+        if (!token) {
+          pushStep({
+            id: "token",
+            label: "Voice token (/api/public/twilio-token)",
+            state: "fail",
+            detail: "no token in response",
+          });
+          throw new Error("no_token");
+        }
+        pushStep({
+          id: "token",
+          label: "Voice token (/api/public/twilio-token)",
+          state: "ok",
+          detail: `HTTP 200 · token ${token.length} chars`,
+        });
+
+        // 3. TwiML webhook reachability (what Twilio calls to route the call)
         pushStep({
           id: "webhook",
           label: "Call webhook (/api/public/twiml-voice)",
-          state: hookRes.ok && summary.ok ? "ok" : "fail",
-          detail: hookRes.ok ? summary.detail : `HTTP ${hookRes.status} ${body.slice(0, 100)}`,
+          state: "pending",
         });
-        pushStep({
-          id: "bot-stream",
-          label: "Bot stream",
-          state: summary.streamUrl ? "ok" : summary.ok ? "info" : "fail",
-          detail: summary.streamUrl
-            ? `web stream → ${summary.streamUrl}`
-            : summary.ok
-              ? "Routed via Redirect/webhook (no direct Stream in probe)"
-              : "No media stream configured — set PIPECAT_STREAM_URL in project secrets",
-        });
-      } catch (e) {
-        pushStep({
-          id: "webhook",
-          label: "Call webhook (/api/public/twiml-voice)",
-          state: "fail",
-          detail: e instanceof Error ? e.message : "unreachable",
-        });
-      }
+        try {
+          const hookRes = await fetch("/api/public/twiml-voice", { method: "POST" });
+          const body = await hookRes.text();
+          const summary = summarizeTwiml(body);
+          pushStep({
+            id: "webhook",
+            label: "Call webhook (/api/public/twiml-voice)",
+            state: hookRes.ok && summary.ok ? "ok" : "fail",
+            detail: hookRes.ok ? summary.detail : `HTTP ${hookRes.status} ${body.slice(0, 100)}`,
+          });
+          pushStep({
+            id: "bot-stream",
+            label: "Bot stream",
+            state: summary.streamUrl ? "ok" : summary.ok ? "info" : "fail",
+            detail: summary.streamUrl
+              ? `web stream → ${summary.streamUrl}`
+              : summary.ok
+                ? "Routed via Redirect/webhook (no direct Stream in probe)"
+                : "No media stream configured — set PIPECAT_STREAM_URL in project secrets",
+          });
+        } catch (e) {
+          pushStep({
+            id: "webhook",
+            label: "Call webhook (/api/public/twiml-voice)",
+            state: "fail",
+            detail: e instanceof Error ? e.message : "unreachable",
+          });
+        }
 
-      // 4. Twilio browser SDK
-      pushStep({ id: "sdk", label: "Twilio Voice SDK", state: "pending" });
-      const Device = await loadTwilioDevice();
-      pushStep({ id: "sdk", label: "Twilio Voice SDK", state: "ok", detail: "loaded" });
+        // 4. Twilio browser SDK
+        pushStep({ id: "sdk", label: "Twilio Voice SDK", state: "pending" });
+        const Device = await loadTwilioDevice();
+        pushStep({ id: "sdk", label: "Twilio Voice SDK", state: "ok", detail: "loaded" });
 
-      pushStep({ id: "connect", label: "Twilio connection", state: "pending" });
-      const device = new Device(token, {
-        logLevel: "silent",
-        codecPreferences: ["opus", "pcmu"] as never,
-      }) as unknown as DeviceLike;
-      deviceRef.current = device;
+        pushStep({ id: "connect", label: "Twilio connection", state: "pending" });
+        const device = new Device(token, {
+          logLevel: "silent",
+          codecPreferences: ["opus", "pcmu"] as never,
+        }) as unknown as DeviceLike;
+        deviceRef.current = device;
 
-      device.on?.("error", (e: unknown) => {
-        const err = e as { code?: number; message?: string };
-        pushStep({
-          id: "device-error",
-          label: "Twilio device error",
-          state: "fail",
-          detail: `${err?.code ?? ""} ${err?.message ?? String(e)}`.trim(),
+        device.on?.("error", (e: unknown) => {
+          const err = e as { code?: number; message?: string };
+          pushStep({
+            id: "device-error",
+            label: "Twilio device error",
+            state: "fail",
+            detail: `${err?.code ?? ""} ${err?.message ?? String(e)}`.trim(),
+          });
         });
-      });
 
-      const call = (await device.connect({ params: {} })) as unknown as CallLike;
-      callRef.current = call;
-      pushStep({ id: "connect", label: "Twilio connection", state: "ok", detail: "call created" });
+        const call = (await device.connect({ params: {} })) as unknown as CallLike;
+        callRef.current = call;
+        pushStep({
+          id: "connect",
+          label: "Twilio connection",
+          state: "ok",
+          detail: "call created",
+        });
 
-      call.on("ringing", () => {
-        setStatus("ringing");
-        pushStep({
-          id: "ringing",
-          label: "Twilio ringing agent",
-          state: "info",
-          detail: "waiting for answer",
+        call.on("ringing", () => {
+          setStatus("ringing");
+          pushStep({
+            id: "ringing",
+            label: "Twilio ringing agent",
+            state: "info",
+            detail: "waiting for answer",
+          });
         });
-      });
-      call.on("accept", () => {
-        setStatus("in-call");
-        pushStep({ id: "answer", label: "Agent answered", state: "ok", detail: "audio connected" });
-        startedAtRef.current = Date.now();
-        timerRef.current = setInterval(() => {
-          if (startedAtRef.current) {
-            setDuration(Math.floor((Date.now() - startedAtRef.current) / 1000));
-          }
-        }, 500);
-      });
-      call.on("disconnect", () => {
-        setStatus("ended");
-        pushStep({ id: "end", label: "Call ended", state: "info", detail: "disconnected" });
-        clearTimer();
-      });
-      call.on("cancel", () => {
-        setStatus("ended");
-        pushStep({
-          id: "end",
-          label: "Call ended",
-          state: "info",
-          detail: "cancelled before answer",
+        call.on("accept", () => {
+          setStatus("in-call");
+          pushStep({
+            id: "answer",
+            label: "Agent answered",
+            state: "ok",
+            detail: "audio connected",
+          });
+          startedAtRef.current = Date.now();
+          timerRef.current = setInterval(() => {
+            if (startedAtRef.current) {
+              setDuration(Math.floor((Date.now() - startedAtRef.current) / 1000));
+            }
+          }, 500);
         });
-        clearTimer();
-      });
-      call.on("error", (e: unknown) => {
-        console.error("Twilio call error", e);
-        pushStep({
-          id: "call-error",
-          label: "Twilio call error",
-          state: "fail",
-          detail: describeTwilioError(e),
+        call.on("disconnect", () => {
+          setStatus("ended");
+          pushStep({ id: "end", label: "Call ended", state: "info", detail: "disconnected" });
+          clearTimer();
         });
-        setError("call_error");
+        call.on("cancel", () => {
+          setStatus("ended");
+          pushStep({
+            id: "end",
+            label: "Call ended",
+            state: "info",
+            detail: "cancelled before answer",
+          });
+          clearTimer();
+        });
+        call.on("error", (e: unknown) => {
+          console.error("Twilio call error", e);
+          pushStep({
+            id: "call-error",
+            label: "Twilio call error",
+            state: "fail",
+            detail: describeTwilioError(e),
+          });
+          setError("call_error");
+          setStatus("error");
+          clearTimer();
+        });
+      } catch (err) {
+        console.error("Twilio start error", err);
+        const name = err instanceof Error ? err.name : "";
+        const raw = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+        pushStep({ id: "fatal", label: "Startup failed", state: "fail", detail: raw });
+        const msg =
+          name === "NotAllowedError" || name === "PermissionDeniedError"
+            ? "mic_blocked"
+            : name === "NotSupportedError" || name === "NotFoundError"
+              ? "mic_unsupported"
+              : "start_failed";
+        setError(msg);
         setStatus("error");
-        clearTimer();
-      });
-    } catch (err) {
-      console.error("Twilio start error", err);
-      const raw = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
-      pushStep({ id: "fatal", label: "Startup failed", state: "fail", detail: raw });
-      const msg =
-        err instanceof Error && err.name === "NotAllowedError" ? "mic_blocked" : "start_failed";
-      setError(msg);
-      setStatus("error");
-      cleanup();
-    }
+        cleanup();
+      }
+    })();
   }, [cleanup, pushStep]);
 
   const hangup = useCallback(() => {

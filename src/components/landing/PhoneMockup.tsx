@@ -1,10 +1,14 @@
 import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useLocale } from "@/lib/i18n";
 import { formatDuration, useTwilioCall } from "@/lib/twilio-call";
 import { CallStatusPanel } from "./CallStatusPanel";
 
+const DEMO_TEL = "+16206708352";
+
 export function PhoneMockup() {
   const { t } = useLocale();
+  const isMobile = useIsMobile();
   const { status, error, isMuted, duration, steps, start, hangup, toggleMute } = useTwilioCall();
 
   const isConnecting = status === "connecting" || status === "ringing";
@@ -57,7 +61,11 @@ export function PhoneMockup() {
               >
                 <span
                   className={`size-1.5 rounded-full ${
-                    isLive ? "bg-pop animate-pulse" : isConnecting ? "bg-pop animate-pulse" : "bg-ink/40"
+                    isLive
+                      ? "bg-pop animate-pulse"
+                      : isConnecting
+                        ? "bg-pop animate-pulse"
+                        : "bg-ink/40"
                   }`}
                 />
                 {pillLabel}
@@ -105,7 +113,11 @@ export function PhoneMockup() {
                   className="grid place-items-center size-14 rounded-full bg-red-600 text-paper shadow-pop hover:scale-105 transition-transform"
                   aria-label={t("phone.hangup")}
                 >
-                  {isConnecting ? <Loader2 size={20} className="animate-spin" /> : <PhoneOff size={20} />}
+                  {isConnecting ? (
+                    <Loader2 size={20} className="animate-spin" />
+                  ) : (
+                    <PhoneOff size={20} />
+                  )}
                 </button>
               )}
 
@@ -124,25 +136,42 @@ export function PhoneMockup() {
 
       {/* CTA + fallback below the phone */}
       <div className="mt-6 flex flex-col items-center gap-2">
-        {isIdle && (
-          <button
-            type="button"
-            onClick={start}
+        {isIdle && isMobile && (
+          <a
+            href={`tel:${DEMO_TEL}`}
             className="inline-flex items-center gap-2 rounded-full bg-ink text-paper px-5 py-2.5 text-sm font-medium hover:bg-pop transition-colors"
           >
             <Phone size={16} />
             {t("phone.callcta")}
+          </a>
+        )}
+        {isIdle && (
+          <button
+            type="button"
+            onClick={start}
+            className={
+              isMobile
+                ? "text-[11px] uppercase tracking-[0.18em] font-mono text-ink/55 hover:text-pop transition-colors"
+                : "inline-flex items-center gap-2 rounded-full bg-ink text-paper px-5 py-2.5 text-sm font-medium hover:bg-pop transition-colors"
+            }
+          >
+            {!isMobile && <Phone size={16} />}
+            {isMobile ? t("phone.browser") : t("phone.callcta")}
           </button>
         )}
         <a
-          href="tel:+16206708352"
+          href={`tel:${DEMO_TEL}`}
           className="text-[11px] uppercase tracking-[0.18em] font-mono text-ink/55 hover:text-pop transition-colors"
         >
           {t("phone.dial")} +1 620 670 8352
         </a>
         {error && (
-          <p className="text-[11px] text-red-600 font-mono" role="alert">
-            {error === "mic_blocked" ? t("phone.err.mic") : t("phone.err.generic")}
+          <p className="text-[11px] text-red-600 font-mono text-center max-w-[280px]" role="alert">
+            {error === "mic_blocked"
+              ? t("phone.err.mic")
+              : error === "mic_unsupported"
+                ? t("phone.err.mic.unsupported")
+                : t("phone.err.generic")}
           </p>
         )}
       </div>
@@ -152,7 +181,10 @@ export function PhoneMockup() {
       <Bubble className="absolute -left-16 sm:-left-28 top-16 float-slow" delay="0s">
         {t("phone.bubble1")}
       </Bubble>
-      <Bubble className="absolute -right-10 sm:-right-24 top-40 float-slow bg-pop !text-paper" delay="1s">
+      <Bubble
+        className="absolute -right-10 sm:-right-24 top-40 float-slow bg-pop !text-paper"
+        delay="1s"
+      >
         {t("phone.bubble2")}
       </Bubble>
     </div>

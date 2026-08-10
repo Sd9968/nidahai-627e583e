@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 
 export type Locale = "en" | "ar";
 
@@ -37,8 +45,10 @@ const en: Dict = {
   "phone.callcta": "Call NidahAI now",
   "phone.hangup": "End call",
   "phone.dial": "Or dial",
-  "phone.err.mic": "Microphone access is required.",
+  "phone.err.mic": "Allow microphone access, then tap Call again. Or dial the number below.",
+  "phone.err.mic.unsupported": "This browser can't use the mic. Dial the number below instead.",
   "phone.err.generic": "Couldn't start the call. Please try again.",
+  "phone.browser": "Call in browser",
   "phone.bubble1": "Hello! How can I help you today?",
   "phone.bubble2": "I'd like to book an appointment.",
 
@@ -105,7 +115,8 @@ const en: Dict = {
   // Final CTA
   "cta.title.a": "Ready to stop missing",
   "cta.title.b": "customer calls?",
-  "cta.subtitle": "Let NidahAI handle appointment scheduling while your team focuses on the work that matters.",
+  "cta.subtitle":
+    "Let NidahAI handle appointment scheduling while your team focuses on the work that matters.",
   "cta.book": "Book a Demo",
   "cta.contact": "Contact Us",
 
@@ -168,7 +179,7 @@ const ar: Dict = {
   "hero.subtitle":
     "يردّ NidahAI على المكالمات، ويفهم عملاءك، ويحجز أو يعدّل أو يلغي المواعيد في أي وقت، بالإنجليزية أو العربية.",
   "hero.pill.available": "متاح ٢٤/٧",
-  
+
   "hero.pill.languages": "English & العربية",
   "hero.pill.notify": "إشعارات فورية عبر الهاتف",
   "hero.cta.demo": "شاهدها أثناء العمل",
@@ -183,8 +194,10 @@ const ar: Dict = {
   "phone.callcta": "اتصل بـ NidahAI الآن",
   "phone.hangup": "إنهاء المكالمة",
   "phone.dial": "أو اتصل على",
-  "phone.err.mic": "يلزم السماح باستخدام الميكروفون.",
+  "phone.err.mic": "اسمح بالوصول للميكروفون ثم اضغط اتصال مرة أخرى. أو اتصل بالرقم أدناه.",
+  "phone.err.mic.unsupported": "هذا المتصفح لا يدعم الميكروفون. اتصل بالرقم أدناه.",
   "phone.err.generic": "تعذر بدء المكالمة. حاول مرة أخرى.",
+  "phone.browser": "اتصال من المتصفح",
   "phone.bubble1": "مرحباً! كيف يمكنني مساعدتك اليوم؟",
   "phone.bubble2": "أود حجز موعد.",
 
@@ -227,10 +240,10 @@ const ar: Dict = {
   "bi.title.a": "مصمم لمحادثات",
   "bi.title.b": "العربية",
   "bi.title.c": "والإنجليزية.",
-  "bi.subtitle": "يتحدث NidahAI مع العملاء بطلاقة بالعربية والإنجليزية. يمكن إضافة المزيد من اللغات مع نمو أعمالك.",
+  "bi.subtitle":
+    "يتحدث NidahAI مع العملاء بطلاقة بالعربية والإنجليزية. يمكن إضافة المزيد من اللغات مع نمو أعمالك.",
   "bi.en.quote": "“Book an appointment for tomorrow at 3 PM.”",
   "bi.ar.quote": "”أريد حجز موعد غداً الساعة ٣ مساءً.“",
-
 
   // Coming Soon
   "coming.ar.eyebrow": "إطلاق المنتج",
