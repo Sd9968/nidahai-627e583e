@@ -168,9 +168,11 @@ export function PhoneMockup() {
           <p className="text-[11px] text-red-600 font-mono text-center max-w-[280px]" role="alert">
             {error === "mic_blocked"
               ? t("phone.err.mic")
-              : error === "mic_unsupported"
-                ? t("phone.err.mic.unsupported")
-                : t("phone.err.generic")}
+              : error === "mic_insecure"
+                ? t("phone.err.mic.insecure")
+                : error === "mic_unsupported"
+                  ? t("phone.err.mic.unsupported")
+                  : t("phone.err.generic")}
           </p>
         )}
       </div>
