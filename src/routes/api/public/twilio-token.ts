@@ -106,7 +106,7 @@ export const Route = createFileRoute("/api/public/twilio-token")({
       OPTIONS: async ({ request }) => {
         const origin = verifyOrigin(request);
         if (!origin) return new Response(null, { status: 403 });
-        return new Response(null { status: 204, headers: corsHeaders(origin) });
+        return new Response(null, { status: 204, headers: corsHeaders(origin) });
       },
       POST: async ({ request }) => {
         const origin = verifyOrigin(request);
