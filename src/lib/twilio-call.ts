@@ -67,7 +67,7 @@ export function useTwilioCall() {
       const { token } = (await res.json()) as { token?: string };
       if (!token) throw new Error("no_token");
 
-      const { Device } = await import("@twilio/voice-sdk");
+      const Device = await loadTwilioDevice();
       const device = new Device(token, {
         logLevel: "silent",
         codecPreferences: ["opus", "pcmu"] as never,
