@@ -30,9 +30,10 @@ function isClientAbort(request: Request, error?: unknown): boolean {
 }
 
 async function normalizeCatastrophicSsrResponse(request: Request, response: Response): Promise<Response> {
-  if (isClientAbort(request)) return response;
+  if (!response || isClientAbort(request)) return response;
 
   if (response.status < 500) return response;
+
   const contentType = response.headers.get("content-type") ?? "";
   if (!contentType.includes("application/json")) return response;
 
