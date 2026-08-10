@@ -88,7 +88,11 @@ function summarizeTwiml(body: string) {
 
   const redirect = /<Redirect[^>]*>([^<]+)<\/Redirect>/i.exec(body)?.[1]?.trim();
   if (redirect) {
-    return { ok: true, detail: `HTTP 200 · Redirect → ${redirect}`, streamUrl: null as string | null };
+    return {
+      ok: true,
+      detail: `HTTP 200 · Redirect → ${redirect}`,
+      streamUrl: null as string | null,
+    };
   }
 
   const dialNumber = /<Number[^>]*>([^<]+)<\/Number>/i.exec(body)?.[1]?.trim();

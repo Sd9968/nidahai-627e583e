@@ -133,8 +133,7 @@ export const Route = createFileRoute("/api/public/twiml-voice")({
 
         // 1) Explicit Media Stream WebSocket (preferred secret names)
         const streamEnv =
-          process.env.PIPECAT_STREAM_URL?.trim() ||
-          process.env.TWILIO_VOICE_STREAM_URL?.trim();
+          process.env.PIPECAT_STREAM_URL?.trim() || process.env.TWILIO_VOICE_STREAM_URL?.trim();
         if (streamEnv) {
           const streamUrl = normalizeWsUrl(streamEnv);
           if (!streamUrl) {
