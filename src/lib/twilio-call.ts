@@ -48,6 +48,30 @@ type CallLike = {
   on: (event: string, cb: (...args: unknown[]) => void) => void;
 };
 
+type TwilioCallError = {
+  code?: number;
+  message?: string;
+  originalError?: {
+    code?: number;
+    message?: string;
+  };
+};
+
+function describeTwilioError(error: unknown) {
+  const twilioError = error as TwilioCallError;
+  const providerError = twilioError.originalError;
+
+  if (providerError?.code === 13225) {
+    return "13225 Call blocked by Twilio: this destination is blacklisted as a high-risk fraud target. Request a destination review from Twilio Support or use the voice agent's direct SIP/webhook endpoint.";
+  }
+
+  if (providerError?.message) {
+    return `${providerError.code ?? twilioError.code ?? ""} ${providerError.message}`.trim();
+  }
+
+  return `${twilioError.code ?? ""} ${twilioError.message ?? String(error)}`.trim();
+}
+
 export type DiagState = "pending" | "ok" | "fail" | "info";
 
 export type DiagStep = {
@@ -218,12 +242,11 @@ export function useTwilioCall() {
       });
       call.on("error", (e: unknown) => {
         console.error("Twilio call error", e);
-        const err = e as { code?: number; message?: string };
         pushStep({
           id: "call-error",
           label: "Twilio call error",
           state: "fail",
-          detail: `${err?.code ?? ""} ${err?.message ?? String(e)}`.trim(),
+          detail: describeTwilioError(e),
         });
         setError("call_error");
         setStatus("error");
