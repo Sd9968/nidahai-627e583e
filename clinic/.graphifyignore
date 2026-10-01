@@ -1,0 +1,13 @@
+.venv/
+venv/
+node_modules/
+.next/
+dist/
+build/
+graphify-out/
+__pycache__/
+*.pyc
+.git/
+package-lock.json
+supabase/.temp/
+raw/

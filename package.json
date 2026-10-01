@@ -9,7 +9,15 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "dev:website": "vite dev",
+    "dev:dashboard": "npm --prefix clinic/dashboard run dev",
+    "build:dashboard": "npm --prefix clinic/dashboard run build",
+    "typecheck": "tsc --noEmit",
+    "typecheck:dashboard": "tsc --noEmit --project clinic/dashboard/tsconfig.json",
+    "install:dashboard": "npm --prefix clinic/dashboard ci",
+    "dev:bot": "cd clinic && .venv/bin/python bot/bot.py -t twilio",
+    "check:bot": "python3 scripts/check-python.py"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
