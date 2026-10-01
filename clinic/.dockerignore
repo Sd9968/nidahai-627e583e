@@ -1,0 +1,16 @@
+.git
+.venv
+venv
+**/__pycache__
+**/*.pyc
+.env
+.env.local
+**/.env
+**/.env.local
+dashboard
+supabase
+node_modules
+.claude
+*.log
+.DS_Store
+README.md
