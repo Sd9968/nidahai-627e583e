@@ -1,6 +1,6 @@
-pipecat-ai[websocket,silero,runner,aws,anthropic,webrtc]>=0.0.92
+pipecat-ai[websocket,silero,runner,aws,anthropic,webrtc]==1.5.0
 pipecat-plugins-munsit>=0.2.0
-python-dotenv>=1.0.0
+python-dotenv==1.2.2
 supabase>=2.10.0
 httpx>=0.27.0
 aiohttp>=3.10.0

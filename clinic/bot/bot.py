@@ -14,6 +14,7 @@ and streaming TTS (Cartesia/Aura) — see LATENCY_MODE env and README.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Any
 from zoneinfo import ZoneInfo
@@ -37,6 +38,12 @@ from pipecat.services.tts_service import TextAggregationMode
 from pipecat.transports.base_transport import BaseTransport, TransportParams
 from pipecat.transports.websocket.fastapi import FastAPIWebsocketParams
 
+# Load this service's configuration before modules read environment settings.
+# Explicit process/container variables take precedence over the local file.
+load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
+# Pipecat also calls load_dotenv; keep it from loading an unrelated ancestor file.
+os.environ["PYTHON_DOTENV_DISABLED"] = "1"
+
 from call_logger import CallSession, CallTurnProbe
 from instructions import PRODUCT, build_greeting, build_system_prompt
 from language_gate import CallState, LanguageGate
@@ -45,7 +52,6 @@ from stt_router import build_stt
 from tools import register_tools
 from tts_router import build_tts
 
-load_dotenv(override=True)
 
 CLINIC_ID = os.getenv("CLINIC_ID", "")
 # "fast" = Haiku + aggressive VAD + short replies
