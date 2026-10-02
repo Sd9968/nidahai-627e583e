@@ -98,10 +98,23 @@ The bot also exposes `/whatsapp` for an existing Twilio messaging integration.
 Keep the bot running on a server: an ngrok tunnel on a sleeping or closed laptop
 cannot provide an always-available portfolio demo.
 
-**Current outage:** the website was routing to an offline ngrok endpoint during
-inspection. Importing the agent into this repository does not start it or change
-production secrets. Restore or deploy the agent, update `PIPECAT_STREAM_URL`,
-and perform a browser and phone call test before treating the outage as fixed.
+For an immediate local demo, a Cloudflare quick tunnel can replace ngrok:
+
+```sh
+cloudflared tunnel --url http://127.0.0.1:7860 --no-autoupdate
+# Use the hostname it prints when starting the bot:
+npm run dev:bot -- -x YOUR_TUNNEL_HOST --host 127.0.0.1 --port 7860
+```
+
+Set both the Twilio number's Voice webhook and the browser's TwiML application's
+Voice URL to `https://YOUR_TUNNEL_HOST/` with method POST. This routes browser
+and phone audio directly to the same running agent, without the website's
+`PIPECAT_STREAM_URL` being used. Alternatively keep the website TwiML route and
+configure `PIPECAT_STREAM_URL` as described above.
+
+Quick-tunnel hostnames change after restarting the tunnel, so update both Twilio
+routes each time. A laptop demo is temporary; use an always-running server and a
+stable hostname for a portfolio link that must work while the laptop is closed.
 
 ## Checks
 
