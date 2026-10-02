@@ -16,5 +16,5 @@
 - Run clinic database tooling from `clinic/`; root `supabase/` belongs to the website.
 - Keep each application's dependencies and environment files separate. Never copy
   local `.env` files, virtual environments, database passwords, or generated assets.
-- See the root README for build commands and voice routing. A code change alone
+- See docs/DEVELOPMENT.md for build commands and voice routing. A code change alone
   does not deploy the voice service or restore an offline tunnel.
